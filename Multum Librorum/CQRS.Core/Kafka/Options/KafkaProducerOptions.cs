@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CQRS.Core.Consumers
+namespace CQRS.Core.Kafka.Options
 {
-    public interface IEventConsumer
+    public class KafkaProducerOptions
     {
-        void Consume(IEnumerable<string> topics);
+        public string ProducerTopic { get; set; } 
     }
 }

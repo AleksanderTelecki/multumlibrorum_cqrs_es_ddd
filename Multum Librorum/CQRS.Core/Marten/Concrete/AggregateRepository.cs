@@ -1,8 +1,10 @@
 ﻿using CQRS.Core.Domain;
 using CQRS.Core.Events;
+using CQRS.Core.Kafka.Options;
 using CQRS.Core.Marten.Abstract;
 using CQRS.Core.Producers;
 using Marten;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,23 +17,28 @@ namespace CQRS.Core.Marten.Concrete
     {
         private readonly IDocumentStore store;
         private readonly IEventProducer eventProducer;
+        private readonly IOptions<KafkaProducerOptions> kafkaProducerOptions;
 
-        public AggregateRepository(IDocumentStore store, IEventProducer eventProducer)
+        public AggregateRepository(IDocumentStore store, IEventProducer eventProducer, IOptions<KafkaProducerOptions> kafkaProducerOptions)
         {
             this.store = store;
             this.eventProducer = eventProducer;
+            this.kafkaProducerOptions = kafkaProducerOptions;
         }
 
         public async Task StoreAsync(AggregateRoot aggregate, CancellationToken ct = default)
         {
+            if (string.IsNullOrEmpty(kafkaProducerOptions.Value.ProducerTopic))
+                throw new ArgumentNullException("Producer kafka topic is null or empty.");
+
             await using var session = await store.LightweightSerializableSessionAsync(token: ct);
             // Take non-persisted events, push them to the event stream, indexed by the aggregate ID
             var events = aggregate.GetUncommittedEvents().ToArray();
             session.Events.Append(aggregate.Id, aggregate.Version, events);
             await session.SaveChangesAsync(ct);
-
-            var topic = Environment.GetEnvironmentVariable("KAFKA_TOPIC");
-            await eventProducer.ProduceAsync(topic, events);
+            
+            // Produce event with kafka
+            await eventProducer.ProduceAsync(kafkaProducerOptions.Value.ProducerTopic, events);
 
             // Once successfully persisted, clear events from list of uncommitted events
             aggregate.ClearUncommittedEvents();

@@ -19,14 +19,14 @@ namespace CQRS.Core.Kafka
             _eventDispatcher = eventDispatcher;
         }
 
-        public void Consume(string topic)
+        public void Consume(IEnumerable<string> topics)
         {
             using var consumer = new ConsumerBuilder<string, string>(_config)
                         .SetKeyDeserializer(Deserializers.Utf8)
                         .SetValueDeserializer(Deserializers.Utf8)
                         .Build();
 
-            consumer.Subscribe(topic);
+            consumer.Subscribe(topics);
 
             while (true)
             {
