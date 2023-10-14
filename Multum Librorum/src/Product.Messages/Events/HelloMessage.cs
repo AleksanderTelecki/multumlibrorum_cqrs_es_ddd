@@ -1,14 +1,15 @@
 ﻿using CQRS.Core.Events;
+using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CQRS.Core.Events
+namespace Product.Messages.Events
 {
-    public interface IEventHandler<T> where T : Event
+    public class HelloMessage : Event, INotification
     {
-        Task On(T @event);
+        public string Name { get; set; }
     }
 }

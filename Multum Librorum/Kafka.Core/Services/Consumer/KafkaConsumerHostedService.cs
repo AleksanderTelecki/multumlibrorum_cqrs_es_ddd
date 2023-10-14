@@ -1,20 +1,21 @@
-﻿using CQRS.Core.Consumers;
-using CQRS.Core.Kafka.Options;
-using JasperFx.Core.Reflection;
+﻿using Kafka.Core.Options;
+using KafkaFlow;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace CQRS.Core.Kafka
+
+namespace Kafka.Core.Services.Consumer
 {
-    public class ConsumerHostedService : IHostedService
+    public class KafkaConsumerHostedService : IHostedService
     {
-        private readonly ILogger<ConsumerHostedService> _logger;
+        private readonly ILogger<KafkaConsumerHostedService> _logger;
         private readonly IOptions<KafkaConsumerOptions> _kafkaConsumerOptions;
         private readonly IServiceProvider _serviceProvider;
+        private IKafkaBus _kafkaBus;
 
-        public ConsumerHostedService(ILogger<ConsumerHostedService> logger, IOptions<KafkaConsumerOptions> kafkaConsumerOptions, IServiceProvider serviceProvider)
+        public KafkaConsumerHostedService(ILogger<KafkaConsumerHostedService> logger, IOptions<KafkaConsumerOptions> kafkaConsumerOptions, IServiceProvider serviceProvider)
         {
             _logger = logger;
             _kafkaConsumerOptions = kafkaConsumerOptions;
@@ -25,16 +26,13 @@ namespace CQRS.Core.Kafka
         {
             _logger.LogInformation("Event consumer service running.");
 
-            if (_kafkaConsumerOptions.Value.Topics.Any())
+            if (!_kafkaConsumerOptions.Value.Topics.Any())
                 throw new ArgumentOutOfRangeException("Empty kafka topics list.");
-
 
             using (IServiceScope scope = _serviceProvider.CreateScope())
             {
-                var eventConsumer = scope.ServiceProvider.GetRequiredService<IEventConsumer>();
-                var topics = _kafkaConsumerOptions.Value.Topics;
-
-                Task.Run(() => eventConsumer.Consume(topics), cancellationToken);
+                _kafkaBus = scope.ServiceProvider.CreateKafkaBus();
+                _kafkaBus.StartAsync();
             }
 
             return Task.CompletedTask;
@@ -42,6 +40,7 @@ namespace CQRS.Core.Kafka
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
+            _kafkaBus.StopAsync();
             _logger.LogInformation("Event consumer service stopped.");
 
             return Task.CompletedTask;

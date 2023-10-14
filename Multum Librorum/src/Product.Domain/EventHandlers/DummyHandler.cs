@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CQRS.Core.Kafka.Options
+namespace Product.Domain.EventHandlers
 {
-    public class KafkaConsumerOptions
+    public class DummyHandler
     {
-        public IEnumerable<string> Topics { get; set; }
     }
 }

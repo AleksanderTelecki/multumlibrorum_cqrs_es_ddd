@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CQRS.Core.Kafka.Options
+namespace Kafka.Core.Options
 {
     public class KafkaProducerOptions
     {
         public string ProducerTopic { get; set; } 
+        public string ProducerName { get; set; }
     }
 }

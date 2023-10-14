@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -8,6 +8,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\CQRS.Core\CQRS.Core.csproj" />
+    <ProjectReference Include="..\Product.Messages\Product.Messages.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="KafkaFlow" Version="2.4.1" />
+    <PackageReference Include="KafkaFlow.LogHandler.Console" Version="2.4.1" />
+    <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="2.4.1" />
+    <PackageReference Include="KafkaFlow.TypedHandler" Version="2.4.1" />
   </ItemGroup>
 
 </Project>

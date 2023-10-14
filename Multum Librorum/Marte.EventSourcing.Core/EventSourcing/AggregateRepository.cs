@@ -1,17 +1,10 @@
 ﻿using CQRS.Core.Domain;
-using CQRS.Core.Events;
-using CQRS.Core.Kafka.Options;
-using CQRS.Core.Marten.Abstract;
-using CQRS.Core.Producers;
-using Marten;
+using Kafka.Core.Abstract;
+using Kafka.Core.Options;
+using Marte.EventSourcing.Core.Abstract;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace CQRS.Core.Marten.Concrete
+namespace Marten.EventSourcing.Core
 {
     public sealed class AggregateRepository: IAggregateReporitory
     {
@@ -38,7 +31,7 @@ namespace CQRS.Core.Marten.Concrete
             await session.SaveChangesAsync(ct);
             
             // Produce event with kafka
-            await eventProducer.ProduceAsync(kafkaProducerOptions.Value.ProducerTopic, events);
+            await eventProducer.ProduceAsync(events);
 
             // Once successfully persisted, clear events from list of uncommitted events
             aggregate.ClearUncommittedEvents();
