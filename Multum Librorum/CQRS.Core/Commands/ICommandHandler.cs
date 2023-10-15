@@ -1,7 +1,14 @@
-﻿namespace CQRS.Core.Commands
+﻿using MediatR;
+
+namespace CQRS.Core.Commands
 {
-    public interface ICommandHandler<T> where T : Command
+    public interface ICommandHandler<T, R>: IRequestHandler<T,R> where T : IRequest<R>
     {
-        Task HandleAsync(T command);
+
+    }
+
+    public interface ICommandHandler<T> : IRequestHandler<T> where T: IRequest
+    {
+
     }
 }

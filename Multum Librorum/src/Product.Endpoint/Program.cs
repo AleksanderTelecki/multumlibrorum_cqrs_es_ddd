@@ -8,21 +8,47 @@ using Product.Domain.EventHandlers;
 using Product.Messages.Events;
 using KafkaFlow.Retry;
 using Kafka.Core.Middleware;
+using Marten;
+using Weasel.Core;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Product.Domain;
+using Marte.EventSourcing.Core.Abstract;
+using Marten.EventSourcing.Core;
+using Kafka.Core.Abstract;
+using Kafka.Core.Services.Producer;
 
 var builder = WebApplication.CreateBuilder(args);
 var configurations = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 
 // Variables
-
 var kafkaProduceConf = builder.Configuration.GetSection(nameof(KafkaProducerOptions)).Get<KafkaProducerOptions>();
 var kafkaConsumerConf = builder.Configuration.GetSection(nameof(KafkaConsumerOptions)).Get<KafkaConsumerOptions>();
 var kafkaBootstrapServer = builder.Configuration.GetConnectionString("KafkaBootstrapServer")!;
 
 // Configurations
+builder.Services.AddDbContext<ProductDomainDataContext>(o => o.UseLazyLoadingProxies().UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
 builder.Services.Configure<KafkaConsumerOptions>(builder.Configuration.GetSection(nameof(KafkaConsumerOptions)));
 builder.Services.Configure<KafkaProducerOptions>(builder.Configuration.GetSection(nameof(KafkaProducerOptions)));
 
 // Services
+builder.Services.AddScoped<IEventProducer, EventProducer>();
+
+builder.Services.AddScoped<IAggregateReporitory, AggregateRepository>();
+
+builder.Services.AddMarten(options =>
+{
+    // Establish the connection string to your Marten database
+    options.Connection(builder.Configuration.GetConnectionString("Marten")!);
+
+    // If we're running in development mode, let Marten just take care
+    // of all necessary schema building and patching behind the scenes
+    if (builder.Environment.IsDevelopment())
+    {
+        options.AutoCreateSchemaObjects = AutoCreate.All;
+    }
+});
+
 builder.Services.AddMediatR(cfg => {
     cfg.RegisterServicesFromAssemblyContaining<DummyHandler>();
 });
@@ -92,20 +118,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-
-
-var serviceProvider = builder.Services.BuildServiceProvider();
-
-var producer = serviceProvider
-    .GetRequiredService<IProducerAccessor>()
-    .GetProducer(kafkaProduceConf.ProducerName);
-
-await producer.ProduceAsync(
-                   kafkaProduceConf.ProducerTopic,
-                   Guid.NewGuid().ToString(),
-                   new HelloMessage { Name = "Hello!" });
-
-
 
 app.Run();
 
