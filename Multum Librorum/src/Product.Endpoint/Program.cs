@@ -2,24 +2,21 @@ using Kafka.Core.Options;
 using Kafka.Core.Services.Consumer;
 using Kafka.Core.Extensions;
 using KafkaFlow;
-using KafkaFlow.Producers;
 using KafkaFlow.Serializer;
 using Product.Domain.EventHandlers;
-using Product.Messages.Events;
 using KafkaFlow.Retry;
 using Kafka.Core.Middleware;
 using Marten;
 using Weasel.Core;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Product.Domain;
 using Marte.EventSourcing.Core.Abstract;
 using Marten.EventSourcing.Core;
 using Kafka.Core.Abstract;
 using Kafka.Core.Services.Producer;
+using Product.Domain.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
-var configurations = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 
 // Variables
 var kafkaProduceConf = builder.Configuration.GetSection(nameof(KafkaProducerOptions)).Get<KafkaProducerOptions>();
@@ -33,8 +30,9 @@ builder.Services.Configure<KafkaProducerOptions>(builder.Configuration.GetSectio
 
 // Services
 builder.Services.AddScoped<IEventProducer, EventProducer>();
-
 builder.Services.AddScoped<IAggregateReporitory, AggregateRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
 
 builder.Services.AddMarten(options =>
 {

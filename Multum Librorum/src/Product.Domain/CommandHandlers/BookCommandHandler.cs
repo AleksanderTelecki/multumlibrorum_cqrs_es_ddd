@@ -1,6 +1,7 @@
 ﻿using CQRS.Core.Commands;
 using Marte.EventSourcing.Core.Abstract;
 using Product.Domain.Aggregates;
+using Product.Domain.Repository;
 using Product.Messages.Commands;
 
 namespace Product.Domain.CommandHandlers
@@ -8,12 +9,10 @@ namespace Product.Domain.CommandHandlers
     public class BookCommandHandler :
         ICommandHandler<AddBookCommand>
     {
-        private readonly ProductDomainDataContext _productDomainDataContext;
         private readonly IAggregateReporitory _aggregateReporitory;
 
-        public BookCommandHandler(ProductDomainDataContext productDomainDataContext, IAggregateReporitory aggregateReporitory)
+        public BookCommandHandler(IAggregateReporitory aggregateReporitory)
         {
-            _productDomainDataContext = productDomainDataContext;
             _aggregateReporitory = aggregateReporitory;
         }
 

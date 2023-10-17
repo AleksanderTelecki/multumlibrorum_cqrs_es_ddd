@@ -16,7 +16,7 @@ namespace Product.Domain.Aggregates
     {
         public string Title { get; private set; }
         public string Author { get; private set; }
-        public decimal Price { get; private set; }
+        public string Description { get; private set; }
         public int PageCount { get; private set; }
         public DateTime RegDate { get; private set; }
         public List<Comment> Comments { get; private set; } = new List<Comment>();
@@ -46,7 +46,7 @@ namespace Product.Domain.Aggregates
             Id = @event.Id;
             Title = @event.Title;
             Author = @event.Author;
-            Price = @event.Price;
+            Description = @event.Description;
             PageCount = @event.PageCount;
             RegDate = @event.RegDate;
 

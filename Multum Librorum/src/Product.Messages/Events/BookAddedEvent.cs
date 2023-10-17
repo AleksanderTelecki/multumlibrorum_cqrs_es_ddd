@@ -9,10 +9,16 @@ namespace Product.Messages.Events
 {
     public  class BookAddedEvent: Event
     {
+        // Book properties
         public string Title { get; set; }
         public string Author { get; set; }
-        public decimal Price { get; set; }
         public int PageCount { get; set; }
         public DateTime RegDate { get; set; }
+        public string Description { get; set; }
+
+
+        // Sales properties
+        public decimal Price { get; set; }
+        public int Quantity { get; set; }
     }
 }

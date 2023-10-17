@@ -13,10 +13,8 @@ namespace Product.Domain.Repository.Entity
         public Guid Id { get; set; }
         public string Title { get; set; }
         public string Author { get; set; }
-
-        [Column(TypeName = "decimal(6, 2)")]
-        public decimal Price { get; set; }
         public int PageCount { get; set; }
+        public string Description { get; set; }
         public DateTime RegDate { get; set; }
 
         public virtual List<PromotionEntity> Promotions { get; set; }

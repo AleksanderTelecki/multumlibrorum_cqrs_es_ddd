@@ -1,4 +1,5 @@
 ﻿using CQRS.Core.Events;
+using Product.Domain.Repository;
 using Product.Domain.Repository.Entity;
 using Product.Messages.Events;
 using System;
@@ -11,11 +12,11 @@ namespace Product.Domain.EventHandlers
 {
     public class BookEventHandler : IEventHandler<BookAddedEvent>
     {
-        private readonly ProductDomainDataContext _productDomainDataContext;
+        private readonly IProductRepository _productRepository;
 
-        public BookEventHandler(ProductDomainDataContext productDomainDataContext)
+        public BookEventHandler(IProductRepository productRepository)
         {
-            _productDomainDataContext = productDomainDataContext;
+            _productRepository = productRepository;
         }
 
         public async Task Handle(BookAddedEvent notification, CancellationToken cancellationToken)
@@ -24,13 +25,12 @@ namespace Product.Domain.EventHandlers
                 Id = notification.Id, 
                 Author=notification.Author,
                 Title=notification.Title,
+                Description=notification.Description,
                 PageCount=notification.PageCount,
-                Price=notification.Price,
                 RegDate=notification.RegDate
             };
 
-            _productDomainDataContext.Add(bookEntity);
-            await _productDomainDataContext.SaveChangesAsync();
+            await _productRepository.CreateBook(bookEntity);
         }
     }
 }

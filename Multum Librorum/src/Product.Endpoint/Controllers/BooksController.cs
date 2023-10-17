@@ -18,7 +18,7 @@ namespace Product.Endpoint.Controllers
             this.mediator = mediator;
         }
 
-        [HttpGet]
+        [HttpPost("Add")]
         public async Task<IActionResult> AddBookAsync(AddBookCommand command)
         {
             await mediator.Send(command);
