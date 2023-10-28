@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CQRS.Core.Queries
+namespace Product.Domain
 {
-    public abstract class Query<QResult>
+    public class Dummy
     {
     }
 }

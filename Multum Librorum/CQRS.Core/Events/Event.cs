@@ -1,9 +1,8 @@
 ﻿using CQRS.Core.Messages;
-using MediatR;
 
 namespace CQRS.Core.Events
 {
-    public abstract class Event: Message, INotification
+    public abstract class Event: Message
     {
         protected Event() => Type = this.GetType().AssemblyQualifiedName;
 

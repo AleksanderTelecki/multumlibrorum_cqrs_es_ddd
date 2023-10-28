@@ -1,4 +1,4 @@
-﻿using CQRS.Core.Commands;
+﻿using CQRS.Core.Commands.Abstract;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -9,7 +9,6 @@
   <ItemGroup>
     <PackageReference Include="KafkaFlow" Version="2.4.1" />
     <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="2.4.1" />
-    <PackageReference Include="MediatR" Version="12.1.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />

@@ -1,21 +1,20 @@
-﻿using KafkaFlow;
-using MediatR;
+﻿using CQRS.Core.Events.Abstract;
+using KafkaFlow;
 
 namespace Kafka.Core.Middleware
 {
     public class MediatorMiddleware : IMessageMiddleware
     {
-        private readonly IMediator _mediator;
+        private readonly IEventDispatcher _eventDispatcher;
 
-        public MediatorMiddleware(IMediator mediator) 
+        public MediatorMiddleware(IEventDispatcher eventDispatcher) 
         {
-            _mediator = mediator;
+            _eventDispatcher = eventDispatcher;
         }
 
         public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
         {
-            await _mediator.Publish(context.Message.Value, context.ConsumerContext.WorkerStopped);
-
+            await _eventDispatcher.Dispatch(context.Message.Value, context.ConsumerContext.WorkerStopped);
             await next(context);
         }
     }

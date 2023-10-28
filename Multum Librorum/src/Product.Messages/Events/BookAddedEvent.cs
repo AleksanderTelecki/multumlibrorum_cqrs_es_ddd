@@ -1,4 +1,5 @@
 ﻿using CQRS.Core.Events;
+using CQRS.Core.Events.Abstract;
 using System;
 using System.Collections.Generic;
 using System.Linq;

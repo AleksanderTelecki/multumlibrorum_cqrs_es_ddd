@@ -12,6 +12,8 @@ using Kafka.Core.Middleware;
 using Sales.Domain.EventHandlers;
 using Marten;
 using Weasel.Core;
+using CQRS.Core.Extensions;
+using Sales.Domain;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,9 +49,7 @@ builder.Services.AddMarten(options =>
     }
 });
 
-builder.Services.AddMediatR(cfg => {
-    cfg.RegisterServicesFromAssemblyContaining<DummyHandler>();
-});
+builder.Services.ConfigureCQRS<Dummy>();
 
 // Kafka 
 builder.Services.AddKafka(

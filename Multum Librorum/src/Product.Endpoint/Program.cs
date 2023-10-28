@@ -15,6 +15,7 @@ using Marten.EventSourcing.Core;
 using Kafka.Core.Abstract;
 using Kafka.Core.Services.Producer;
 using Product.Domain.Repository;
+using CQRS.Core.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,9 +48,7 @@ builder.Services.AddMarten(options =>
     }
 });
 
-builder.Services.AddMediatR(cfg => {
-    cfg.RegisterServicesFromAssemblyContaining<DummyHandler>();
-});
+builder.Services.ConfigureCQRS<Dummy>();
 
 // Kafka 
 builder.Services.AddKafka(

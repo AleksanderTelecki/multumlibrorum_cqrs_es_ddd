@@ -1,4 +1,5 @@
 ﻿using CQRS.Core.Events;
+using CQRS.Core.Events.Abstract;
 using Product.Messages.Events;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace Sales.Domain.EventHandlers
     public class BookEventHandler :
         IEventHandler<BookAddedEvent>
     {
-        public Task Handle(BookAddedEvent notification, CancellationToken cancellationToken)
+        public Task Handle(BookAddedEvent @event, CancellationToken cancellationToken)
         {
             Console.WriteLine("Handle BookAdded Message");
 

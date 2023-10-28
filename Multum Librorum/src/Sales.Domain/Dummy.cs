@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CQRS.Core.Queries
+namespace Sales.Domain
 {
-    public interface IQueryHandler<T, R> where T: Query<R>
+    public class Dummy
     {
-        Task<R> HandleAsync(T query);
     }
 }

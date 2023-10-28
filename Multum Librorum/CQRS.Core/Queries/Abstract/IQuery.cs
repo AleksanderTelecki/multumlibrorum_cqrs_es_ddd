@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Product.Domain.EventHandlers
+namespace CQRS.Core.Queries.Abstract
 {
-    public class DummyHandler
+    public interface IQuery
     {
+
     }
 }

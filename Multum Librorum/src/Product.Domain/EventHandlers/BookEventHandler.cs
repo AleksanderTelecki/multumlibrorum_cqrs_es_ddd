@@ -1,4 +1,5 @@
 ﻿using CQRS.Core.Events;
+using CQRS.Core.Events.Abstract;
 using Product.Domain.Repository;
 using Product.Domain.Repository.Entity;
 using Product.Messages.Events;
@@ -19,15 +20,15 @@ namespace Product.Domain.EventHandlers
             _productRepository = productRepository;
         }
 
-        public async Task Handle(BookAddedEvent notification, CancellationToken cancellationToken)
+        public async Task Handle(BookAddedEvent @event, CancellationToken cancellationToken)
         {
             var bookEntity = new BookEntity { 
-                Id = notification.Id, 
-                Author=notification.Author,
-                Title=notification.Title,
-                Description=notification.Description,
-                PageCount=notification.PageCount,
-                RegDate=notification.RegDate
+                Id = @event.Id, 
+                Author= @event.Author,
+                Title= @event.Title,
+                Description= @event.Description,
+                PageCount= @event.PageCount,
+                RegDate= @event.RegDate
             };
 
             await _productRepository.CreateBook(bookEntity);
