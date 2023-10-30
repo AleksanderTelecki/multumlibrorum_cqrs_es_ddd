@@ -11,7 +11,16 @@ using System.Threading.Tasks;
 
 namespace Product.Domain.EventHandlers
 {
-    public class BookEventHandler : IEventHandler<BookAddedEvent>
+    public class BookEventHandler : 
+        IEventHandler<BookAddedEvent>,
+        IEventHandler<BookDetailsUpdatedEvent>,
+        IEventHandler<BookPriceUpdatedEvent>,
+        IEventHandler<BookQuantityUpdatedEvent>,
+        IEventHandler<BookMarkedAsHiddenEvent>,
+        IEventHandler<BookMarkedAsUnHiddenEvent>,
+        IEventHandler<BookCommentAddedEvent>,
+        IEventHandler<BookCommentRemovedEvent>
+
     {
         private readonly IProductRepository _productRepository;
 
@@ -27,11 +36,79 @@ namespace Product.Domain.EventHandlers
                 Author= @event.Author,
                 Title= @event.Title,
                 Description= @event.Description,
+                Quantity= @event.Quantity,
+                Price= @event.Price,
                 PageCount= @event.PageCount,
                 RegDate= @event.RegDate
             };
 
             await _productRepository.CreateBook(bookEntity);
+        }
+
+        public async Task Handle(BookDetailsUpdatedEvent @event, CancellationToken cancellation)
+        {
+            var bookEntity = await _productRepository.GetBook(@event.Id);
+
+            bookEntity.Author = @event.Author;
+            bookEntity.Title = @event.Title;
+            bookEntity.Description = @event.Description;
+            bookEntity.PageCount = @event.PageCount;
+
+            await _productRepository.UpdateBook(bookEntity);
+        }
+
+        public async Task Handle(BookPriceUpdatedEvent @event, CancellationToken cancellation)
+        {
+            var bookEntity = await _productRepository.GetBook(@event.Id);
+
+            bookEntity.Price = @event.Price;
+
+            await _productRepository.UpdateBook(bookEntity);
+        }
+
+        public async Task Handle(BookQuantityUpdatedEvent @event, CancellationToken cancellation)
+        {
+            var bookEntity = await _productRepository.GetBook(@event.Id);
+
+            bookEntity.Quantity = @event.Quantity;
+
+            await _productRepository.UpdateBook(bookEntity);
+        }
+
+        public async Task Handle(BookMarkedAsHiddenEvent @event, CancellationToken cancellation)
+        {
+            var bookEntity = await _productRepository.GetBook(@event.Id);
+
+            bookEntity.IsHidden = true;
+
+            await _productRepository.UpdateBook(bookEntity);
+        }
+
+        public async Task Handle(BookMarkedAsUnHiddenEvent @event, CancellationToken cancellation)
+        {
+            var bookEntity = await _productRepository.GetBook(@event.Id);
+
+            bookEntity.IsHidden = false;
+
+            await _productRepository.UpdateBook(bookEntity);
+        }
+
+        public async Task Handle(BookCommentAddedEvent @event, CancellationToken cancellation)
+        {
+            var bookEntity = await _productRepository.GetBook(@event.Id);
+
+            bookEntity.Comments.Add(new CommentEntity(@event.Comment));
+
+            await _productRepository.UpdateBook(bookEntity);
+        }
+
+        public async Task Handle(BookCommentRemovedEvent @event, CancellationToken cancellation)
+        {
+            var bookEntity = await _productRepository.GetBook(@event.Id);
+
+            bookEntity.Comments.Remove(new CommentEntity(@event.Comment));
+
+            await _productRepository.UpdateBook(bookEntity);
         }
     }
 }

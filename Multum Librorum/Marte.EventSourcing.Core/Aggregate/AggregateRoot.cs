@@ -1,7 +1,7 @@
 ﻿using CQRS.Core.Events;
 using Newtonsoft.Json;
 
-namespace CQRS.Core.Domain
+namespace Marte.EventSourcing.Core.Aggregate
 {
     public abstract class AggregateRoot
     {

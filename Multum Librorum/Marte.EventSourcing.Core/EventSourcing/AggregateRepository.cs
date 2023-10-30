@@ -1,7 +1,7 @@
-﻿using CQRS.Core.Domain;
-using Kafka.Core.Abstract;
+﻿using Kafka.Core.Abstract;
 using Kafka.Core.Options;
 using Marte.EventSourcing.Core.Abstract;
+using Marte.EventSourcing.Core.Aggregate;
 using Microsoft.Extensions.Options;
 
 namespace Marten.EventSourcing.Core

@@ -21,8 +21,42 @@ namespace Product.Endpoint.Controllers
         public async Task<IActionResult> AddBookAsync(AddBookCommand command)
         {
             await _commandDispatcher.Dispatch(command);
+            return StatusCode(StatusCodes.Status200OK);
+        }
 
-            return StatusCode(StatusCodes.Status201Created);
+        [HttpPost("UpdateDetails")]
+        public async Task<IActionResult> UpdateBookDetailsAsync(UpdateBookDetailsCommand command)
+        {
+            await _commandDispatcher.Dispatch(command);
+            return StatusCode(StatusCodes.Status200OK);
+        }
+
+        [HttpPost("UpdatePrice")]
+        public async Task<IActionResult> UpdateBookPriceAsync(UpdateBookPriceCommand command)
+        {
+            await _commandDispatcher.Dispatch(command);
+            return StatusCode(StatusCodes.Status200OK);
+        }
+
+        [HttpPost("UpdateQuantity")]
+        public async Task<IActionResult> UpdateBookQuantityAsync(UpdateBookQuantityCommand command)
+        {
+            await _commandDispatcher.Dispatch(command);
+            return StatusCode(StatusCodes.Status200OK);
+        }
+
+        [HttpPost("HideBook")]
+        public async Task<IActionResult> HideBookAsync(HideBookCommand command)
+        {
+            await _commandDispatcher.Dispatch(command);
+            return StatusCode(StatusCodes.Status200OK);
+        }
+
+        [HttpPost("UnHideBook")]
+        public async Task<IActionResult> UnHideBookAsync(UnHideBookCommand command)
+        {
+            await _commandDispatcher.Dispatch(command);
+            return StatusCode(StatusCodes.Status200OK);
         }
     }
 }

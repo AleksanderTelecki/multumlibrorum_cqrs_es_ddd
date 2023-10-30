@@ -1,4 +1,4 @@
-﻿using CQRS.Core.Domain;
+﻿using Marte.EventSourcing.Core.Aggregate;
 
 namespace Marte.EventSourcing.Core.Abstract
 {

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Product.Domain;
 
@@ -11,9 +12,11 @@ using Product.Domain;
 namespace Product.Domain.Migrations
 {
     [DbContext(typeof(ProductDomainDataContext))]
-    partial class ProductDomainDataContextModelSnapshot : ModelSnapshot
+    [Migration("20231030120609_ishiddenbook")]
+    partial class ishiddenbook
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,9 +47,6 @@ namespace Product.Domain.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(6, 2)");
-
-                    b.Property<decimal?>("PromotedPrice")
                         .HasColumnType("decimal(6, 2)");
 
                     b.Property<int>("Quantity")

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Product.Messages.Events.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -20,5 +21,18 @@ namespace Product.Domain.Repository.Entity
 
         [ForeignKey("BookEntityId")]
         public virtual BookEntity BookEntity { get; set; }
+
+        public CommentEntity()
+        {
+            
+        }
+
+        public CommentEntity(Comment comment)
+        {
+            Id = comment.Id;
+            UserId = comment.UserId;
+            CommentText = comment.CommentText;
+            RegDate = comment.RegDate;
+        }
     }
 }

@@ -1,20 +1,20 @@
+
+using Kafka.Core.Abstract;
 using Kafka.Core.Options;
-using Kafka.Core.Services.Consumer;
-using Kafka.Core.Extensions;
+using Kafka.Core.Services.Producer;
 using KafkaFlow;
+using Marte.EventSourcing.Core.Abstract;
+using Marten;
+using Marten.EventSourcing.Core;
+using Promotion.Domain;
+using Weasel.Core;
+using CQRS.Core.Extensions;
 using KafkaFlow.Serializer;
+using Microsoft.EntityFrameworkCore;
+using Promotion.Domain.Repository;
+using Kafka.Core.Extensions;
 using KafkaFlow.Retry;
 using Kafka.Core.Middleware;
-using Marten;
-using Weasel.Core;
-using Microsoft.EntityFrameworkCore;
-using Product.Domain;
-using Marte.EventSourcing.Core.Abstract;
-using Marten.EventSourcing.Core;
-using Kafka.Core.Abstract;
-using Kafka.Core.Services.Producer;
-using Product.Domain.Repository;
-using CQRS.Core.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,14 +24,14 @@ var kafkaConsumerConf = builder.Configuration.GetSection(nameof(KafkaConsumerOpt
 var kafkaBootstrapServer = builder.Configuration.GetConnectionString("KafkaBootstrapServer")!;
 
 // Configurations
-builder.Services.AddDbContext<ProductDomainDataContext>(o => o.UseLazyLoadingProxies().UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
+builder.Services.AddDbContext<PromotionDomainDataContext>(o => o.UseLazyLoadingProxies().UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
 builder.Services.Configure<KafkaConsumerOptions>(builder.Configuration.GetSection(nameof(KafkaConsumerOptions)));
 builder.Services.Configure<KafkaProducerOptions>(builder.Configuration.GetSection(nameof(KafkaProducerOptions)));
 
 // Services
 builder.Services.AddScoped<IEventProducer, EventProducer>();
 builder.Services.AddScoped<IAggregateReporitory, AggregateRepository>();
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IPromotionRepository, PromotionRepository>();
 
 
 builder.Services.AddMarten(options =>
@@ -92,8 +92,6 @@ builder.Services.AddKafka(
 );
 
 
-builder.Services.AddHostedService<KafkaConsumerHostedService>();
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -116,5 +114,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-

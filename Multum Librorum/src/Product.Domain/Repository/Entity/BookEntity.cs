@@ -16,8 +16,12 @@ namespace Product.Domain.Repository.Entity
         public int PageCount { get; set; }
         public string Description { get; set; }
         public DateTime RegDate { get; set; }
-
-        public virtual List<PromotionEntity> Promotions { get; set; }
+        [Column(TypeName = "decimal(6, 2)")]
+        public decimal Price { get; set; }
+        [Column(TypeName = "decimal(6, 2)")]
+        public decimal? PromotedPrice { get; set; }
+        public int Quantity { get; set; }
+        public bool IsHidden { get; set; }
         public virtual List<CommentEntity> Comments { get; set; }
 
         public BookEntity()

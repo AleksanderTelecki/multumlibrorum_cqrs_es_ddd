@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+	
+  <ItemGroup>
+    <PackageReference Include="KafkaFlow" Version="2.4.1" />
+    <PackageReference Include="KafkaFlow.LogHandler.Console" Version="2.4.1" />
+    <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="2.4.1" />
+    <PackageReference Include="KafkaFlow.TypedHandler" Version="2.4.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.12" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.12" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="7.0.12" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.12" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <ProjectReference Include="..\..\CQRS.Core\CQRS.Core.csproj" />
+    <ProjectReference Include="..\..\Marte.EventSourcing.Core\Marte.EventSourcing.Core.csproj" />
+    <ProjectReference Include="..\Promotion.Messages\Promotion.Messages.csproj" />
+  </ItemGroup>
+
+</Project>
