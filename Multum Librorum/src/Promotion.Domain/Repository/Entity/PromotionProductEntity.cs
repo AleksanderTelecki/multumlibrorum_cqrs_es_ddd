@@ -16,5 +16,10 @@ namespace Promotion.Domain.Repository.Entity
         public Guid PromotionEntityId { get; set; }
         [ForeignKey("PromotionEntityId")]
         public virtual PromotionEntity Promotion { get; set; }
+
+        public PromotionProductEntity()
+        {
+            
+        }
     }
 }

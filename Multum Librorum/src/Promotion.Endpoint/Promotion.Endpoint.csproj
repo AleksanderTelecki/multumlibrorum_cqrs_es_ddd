@@ -20,10 +20,6 @@
   </ItemGroup>
 
  <ItemGroup>
-   <Folder Include="Controllers\" />
- </ItemGroup>
-
- <ItemGroup>
    <ProjectReference Include="..\..\Kafka.Core\Kafka.Core.csproj" />
    <ProjectReference Include="..\..\Marte.EventSourcing.Core\Marte.EventSourcing.Core.csproj" />
    <ProjectReference Include="..\Promotion.Domain\Promotion.Domain.csproj" />

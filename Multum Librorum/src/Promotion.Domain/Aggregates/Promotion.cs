@@ -7,7 +7,8 @@ namespace Promotion.Domain.Aggregates
     {
         public string Description { get; private set; }
         public decimal PromotionInPercentage { get; private set; }
-        public List<Guid> ProductIds { get; private set; }
+        public List<Guid> Products { get; private set; } = new List<Guid>();
+        public bool IsActive { get; set; }
         public DateTime Regdate { get; private set; }
         public DateTime EndDate { get; private set; }
 
@@ -16,7 +17,7 @@ namespace Promotion.Domain.Aggregates
             
         }
 
-        public Promotion(string description, decimal promotionInPercentage, List<Guid> productsId, DateTime endDate)
+        public Promotion(string description, decimal promotionInPercentage, List<Guid> products, DateTime endDate)
         {
             Id = Guid.NewGuid();
 
@@ -26,18 +27,19 @@ namespace Promotion.Domain.Aggregates
                 Description = description,
                 Regdate = DateTime.Now,
                 EndDate = endDate,
-                ProductIds = productsId,
+                Products = products,
                 PromotionInPercentage = promotionInPercentage
             });
         }
 
-        public void Change(string description, decimal promotionInPercentage, List<Guid> productsId, DateTime endDate)
+        public void Edit(string description, decimal promotionInPercentage, List<Guid> productsId, DateTime endDate)
         {
-            RaiseEvent(new PromotionChangedEvent
+            RaiseEvent(new PromotionEditedEvent
             {
                 Id = Id,
                 Description = description,
-                ProductIds = productsId,
+                NewProducts = productsId,
+                PreviousProducts = Products,
                 PromotionInPercentage = promotionInPercentage,
                 EndDate = endDate,
             });
@@ -48,7 +50,7 @@ namespace Promotion.Domain.Aggregates
             RaiseEvent(new PromotionEndedEvent
             {
                 Id = Id,
-                ProductIds = ProductIds
+                Products = Products
             });
         }
 
@@ -58,17 +60,18 @@ namespace Promotion.Domain.Aggregates
             Description = @event.Description;
             Regdate = @event.Regdate;
             PromotionInPercentage = @event.PromotionInPercentage;
-            ProductIds = @event.ProductIds;
+            IsActive = true;
+            Products = @event.Products;
             EndDate = @event.EndDate;
 
             Version++;
         }
 
-        public void Apply(PromotionChangedEvent @event)
+        public void Apply(PromotionEditedEvent @event)
         {
             Description = @event.Description;
             PromotionInPercentage = @event.PromotionInPercentage;
-            ProductIds = @event.ProductIds;
+            Products = @event.NewProducts;
             EndDate = @event.EndDate;
 
             Version++;
@@ -76,6 +79,7 @@ namespace Promotion.Domain.Aggregates
 
         public void Apply(PromotionEndedEvent @event)
         {
+            IsActive = false;
             Version++;
         }
 

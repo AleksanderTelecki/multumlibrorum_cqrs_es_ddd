@@ -14,7 +14,8 @@ namespace Promotion.Domain.Repository.Entity
         public string Description { get; set; }
         [Column(TypeName = "decimal(6, 2)")]
         public decimal PromotionInPercentage { get; set; }
-        public virtual ICollection<PromotionProductEntity> Products { get; set; } 
+        public virtual ICollection<PromotionProductEntity> Products { get; set; } = new List<PromotionProductEntity>();
+        public bool IsActive { get; set; } = true;
         public DateTime Regdate { get;set; }
         public DateTime EndDate { get;set; }
 

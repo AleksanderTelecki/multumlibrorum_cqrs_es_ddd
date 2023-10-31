@@ -22,7 +22,7 @@ namespace Product.Domain.Repository.Entity
         public decimal? PromotedPrice { get; set; }
         public int Quantity { get; set; }
         public bool IsHidden { get; set; }
-        public virtual List<CommentEntity> Comments { get; set; }
+        public virtual List<CommentEntity> Comments { get; set; } = new List<CommentEntity>();
 
         public BookEntity()
         {

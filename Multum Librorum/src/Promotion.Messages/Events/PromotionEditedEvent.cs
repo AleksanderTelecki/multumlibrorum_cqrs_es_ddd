@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 
 namespace Promotion.Messages.Events
 {
-    public class PromotionChangedEvent: Event
+    public class PromotionEditedEvent: Event
     {
         public string Description { get; set; }
         public decimal PromotionInPercentage { get; set; }
-        public List<Guid> ProductIds { get; set; }
+        public List<Guid> NewProducts { get; set; }
+        public List<Guid> PreviousProducts { get; set; }
         public DateTime EndDate { get; set; }
     }
 }

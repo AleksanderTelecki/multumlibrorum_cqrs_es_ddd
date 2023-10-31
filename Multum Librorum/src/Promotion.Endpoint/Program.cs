@@ -15,6 +15,8 @@ using Promotion.Domain.Repository;
 using Kafka.Core.Extensions;
 using KafkaFlow.Retry;
 using Kafka.Core.Middleware;
+using Kafka.Core.Services.Consumer;
+using Promotion.Endpoint.HostedServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,7 +34,6 @@ builder.Services.Configure<KafkaProducerOptions>(builder.Configuration.GetSectio
 builder.Services.AddScoped<IEventProducer, EventProducer>();
 builder.Services.AddScoped<IAggregateReporitory, AggregateRepository>();
 builder.Services.AddScoped<IPromotionRepository, PromotionRepository>();
-
 
 builder.Services.AddMarten(options =>
 {
@@ -91,6 +92,8 @@ builder.Services.AddKafka(
     )
 );
 
+builder.Services.AddHostedService<KafkaConsumerHostedService>();
+builder.Services.AddHostedService<CheckPromotionsHostedService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

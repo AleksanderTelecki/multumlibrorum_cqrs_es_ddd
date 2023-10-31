@@ -14,7 +14,9 @@ namespace Product.Domain.CommandHandlers
         ICommandHandler<HideBookCommand>,
         ICommandHandler<UnHideBookCommand>,
         ICommandHandler<AddCommentToBookCommand>,
-        ICommandHandler<RemoveBookCommentCommand>
+        ICommandHandler<RemoveBookCommentCommand>,
+        ICommandHandler<AddBookPromotionCommand>,
+        ICommandHandler<RemoveBookPromotionCommand>
     {
         private readonly IAggregateReporitory _aggregateReporitory;
 
@@ -81,6 +83,22 @@ namespace Product.Domain.CommandHandlers
         {
             var book = await _aggregateReporitory.LoadAsync<Book>(command.Id);
             book.RemoveComment(command.Comment);
+
+            await _aggregateReporitory.StoreAsync(book);
+        }
+
+        public async Task Handle(AddBookPromotionCommand command, CancellationToken cancellation)
+        {
+            var book = await _aggregateReporitory.LoadAsync<Book>(command.Id);
+            book.SetPromotedPrice(book.Price * command.PromotedPercentage);
+
+            await _aggregateReporitory.StoreAsync(book);
+        }
+
+        public async Task Handle(RemoveBookPromotionCommand command, CancellationToken cancellation)
+        {
+            var book = await _aggregateReporitory.LoadAsync<Book>(command.Id);
+            book.SetPromotedPrice(null);
 
             await _aggregateReporitory.StoreAsync(book);
         }

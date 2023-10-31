@@ -15,8 +15,17 @@ namespace CQRS.Core.Events
         public Task Dispatch(object @event, CancellationToken cancellation = default)
         {
             var eventHandlerType = typeof(IEventHandler<>).MakeGenericType(@event.GetType());
-            dynamic handler = _serviceProvider.GetRequiredService(eventHandlerType);
-            return handler.Handle((dynamic)@event, cancellation);
+
+            try
+            {
+                dynamic handler = _serviceProvider.GetRequiredService(eventHandlerType);
+                return handler.Handle((dynamic)@event, cancellation);
+            }
+            catch (InvalidOperationException)
+            {
+                Console.WriteLine($"Handler not registered for the event of type: {eventHandlerType.FullName}");
+                return Task.CompletedTask;
+            }
         }
     }
 }

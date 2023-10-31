@@ -14,6 +14,7 @@ namespace Product.Domain.Repository
         public Task DeleteBook(BookEntity bookEntity);
         public Task<BookEntity> GetBook(Guid id);
         public Task<List<BookEntity>> GetAllBooks();
+        public Task<List<BookEntity>> GetAllBooksWithTrack();
         public Task UpdateBook(BookEntity bookEntity);
 
     }
@@ -42,6 +43,11 @@ namespace Product.Domain.Repository
         public async Task<List<BookEntity>> GetAllBooks()
         {
             return await _productDomainDataContext.Books.AsNoTracking().ToListAsync();
+        }
+
+        public async Task<List<BookEntity>> GetAllBooksWithTrack()
+        {
+            return await _productDomainDataContext.Books.ToListAsync();
         }
 
         public async Task<BookEntity> GetBook(Guid id)

@@ -9,6 +9,6 @@ namespace Promotion.Messages.Events
 {
     public class PromotionEndedEvent: Event
     {
-        public List<Guid> ProductIds { get; set; }
+        public List<Guid> Products { get; set; }
     }
 }

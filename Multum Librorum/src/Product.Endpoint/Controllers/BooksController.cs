@@ -8,12 +8,10 @@ namespace Product.Endpoint.Controllers
     [Route("api/v1/[controller]")]
     public class BooksController: ControllerBase
     {
-        private readonly ILogger<BooksController> _logger;
         private readonly ICommandDispatcher _commandDispatcher;
 
-        public BooksController(ILogger<BooksController> logger, ICommandDispatcher commandDispatcher)
+        public BooksController(ICommandDispatcher commandDispatcher)
         {
-            _logger = logger;
             _commandDispatcher = commandDispatcher;
         }
 

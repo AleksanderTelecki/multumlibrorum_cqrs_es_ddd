@@ -7,10 +7,8 @@ using System.Threading.Tasks;
 
 namespace Promotion.Messages.Commands
 {
-    public class PromotionChangeCommand: ICommand
+    public class PromotionEndedCommand: ICommand
     {
-        public decimal PromotionInPercentage { get; set; }
-        public List<Guid> ProductIds { get; set; }
-        public DateTime EndDate { get; set; }
+        public Guid Id { get; set; }
     }
 }

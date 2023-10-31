@@ -11,7 +11,7 @@ namespace Promotion.Messages.Events
     {
         public string Description { get; set; }
         public decimal PromotionInPercentage { get; set; }
-        public List<Guid> ProductIds { get; set; }
+        public List<Guid> Products { get; set; }
         public DateTime Regdate { get; set; }
         public DateTime EndDate { get; set; }
     }
