@@ -8,7 +8,7 @@ namespace Promotion.Domain.Aggregates
         public string Description { get; private set; }
         public decimal PromotionInPercentage { get; private set; }
         public List<Guid> Products { get; private set; } = new List<Guid>();
-        public bool IsActive { get; set; }
+        public bool IsActive { get; private set; }
         public DateTime Regdate { get; private set; }
         public DateTime EndDate { get; private set; }
 
