@@ -27,6 +27,9 @@ namespace User.Domain.Aggregates
         {
             Id = Guid.NewGuid();
 
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+                throw new ArgumentNullException(string.IsNullOrWhiteSpace(email) ? nameof(email) : nameof(password));
+
             RaiseEvent(new UserRegisteredEvent
             {
                 Id = Id,

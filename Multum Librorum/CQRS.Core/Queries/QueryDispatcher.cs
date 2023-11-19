@@ -1,4 +1,6 @@
-﻿using CQRS.Core.Queries.Abstract;
+﻿using CQRS.Core.Events.Abstract;
+using CQRS.Core.Events;
+using CQRS.Core.Queries.Abstract;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -13,10 +15,20 @@ namespace CQRS.Core.Queries
         private readonly IServiceProvider _serviceProvider;
         public QueryDispatcher(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;
 
-        public Task<TQueryResult> Dispatch<TQuery, TQueryResult>(TQuery query, CancellationToken cancellation = default) where TQuery : IQuery
+        public Task<TResult> Dispatch<TResult>(IQuery<TResult> query, CancellationToken cancellationToken = default)
         {
-            var handler = _serviceProvider.GetRequiredService<IQueryHandler<TQuery, TQueryResult>>();
-            return handler.Handle(query, cancellation);
-        }
+            var queryHandlerType = typeof(IQueryHandler<,>).MakeGenericType(query.GetType(), typeof(TResult));
+
+            try 
+            {
+                dynamic handler = _serviceProvider.GetRequiredService(queryHandlerType);
+                return handler.Handle((dynamic)query, cancellationToken);
+            }
+            catch (InvalidOperationException)
+            {
+                Console.WriteLine($"Handler not registered for the query of type: {queryHandlerType.FullName}");
+                return (Task<TResult>)Task.CompletedTask;
+            }
+}
     }
 }

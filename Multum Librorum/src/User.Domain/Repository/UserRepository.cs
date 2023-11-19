@@ -12,10 +12,11 @@ namespace User.Domain.Repository
     {
         public Task CreateUser(UserEntity user);
         public Task<UserEntity> GetUser(Guid id);
+        public Task<UserEntity> GetUserByEmail(string email);
         public Task UpdateUser(UserEntity user);
     }
 
-    public class UserRepository: IUserRepository
+    public class UserRepository : IUserRepository
     {
         private readonly UserDomainDataContext _userDomainDataContext;
 
@@ -33,6 +34,11 @@ namespace User.Domain.Repository
         public async Task<UserEntity> GetUser(Guid id)
         {
             return await _userDomainDataContext.Users.FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<UserEntity> GetUserByEmail(string email)
+        {
+            return await _userDomainDataContext.Users.FirstOrDefaultAsync(x => x.Email == email);
         }
 
         public async Task UpdateUser(UserEntity user)

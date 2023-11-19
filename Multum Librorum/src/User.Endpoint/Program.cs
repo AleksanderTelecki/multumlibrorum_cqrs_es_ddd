@@ -15,6 +15,9 @@ using Kafka.Core.Services.Producer;
 using CQRS.Core.Extensions;
 using User.Domain;
 using User.Domain.Repository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +35,18 @@ builder.Services.Configure<KafkaProducerOptions>(builder.Configuration.GetSectio
 builder.Services.AddScoped<IEventProducer, EventProducer>();
 builder.Services.AddScoped<IAggregateReporitory, AggregateRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+
+// Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters()
+    {
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+    };
+});
 
 
 builder.Services.AddMarten(options =>

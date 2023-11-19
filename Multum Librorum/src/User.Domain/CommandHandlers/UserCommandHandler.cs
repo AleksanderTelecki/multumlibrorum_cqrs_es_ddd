@@ -1,4 +1,5 @@
 ﻿using CQRS.Core.Commands.Abstract;
+using CQRS.Core.Queries.Abstract;
 using Marte.EventSourcing.Core.Abstract;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using User.Domain.Aggregates;
 using User.Messages.Commands;
+using User.Messages.Models;
+using User.Messages.Queries;
 
 namespace User.Domain.CommandHandlers
 {
@@ -17,14 +20,21 @@ namespace User.Domain.CommandHandlers
     {
 
         private readonly IAggregateReporitory _aggregateReporitory;
+        private readonly IQueryDispatcher _queryDispatcher;
 
-        public UserCommandHandler(IAggregateReporitory aggregateReporitory)
+        public UserCommandHandler(IAggregateReporitory aggregateReporitory, IQueryDispatcher queryDispatcher)
         {
             _aggregateReporitory = aggregateReporitory;
+            _queryDispatcher = queryDispatcher;
         }
 
         public async Task Handle(RegisterUserCommand command, CancellationToken cancellation)
         {
+            var existingUser = await _queryDispatcher.Dispatch(new GetUserByEmailQuery { Email = command.Email });
+
+            if (existingUser != null)
+                throw new ArgumentOutOfRangeException("User with this email already existsin system");
+
             var user = new Aggregates.User(
                 command.Email,
                 command.Password, 

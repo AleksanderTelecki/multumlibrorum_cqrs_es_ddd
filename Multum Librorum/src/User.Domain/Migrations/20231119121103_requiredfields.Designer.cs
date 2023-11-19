@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using User.Domain;
 
@@ -11,9 +12,11 @@ using User.Domain;
 namespace User.Domain.Migrations
 {
     [DbContext(typeof(UserDomainDataContext))]
-    partial class UserDomainDataContextModelSnapshot : ModelSnapshot
+    [Migration("20231119121103_requiredfields")]
+    partial class requiredfields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

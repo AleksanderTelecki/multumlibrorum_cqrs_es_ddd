@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CQRS.Core.Queries.Abstract
 {
-    public interface IQuery
+    public interface IQuery<TResult>
     {
 
     }

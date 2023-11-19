@@ -8,6 +8,7 @@ namespace CQRS.Core.Queries.Abstract
 {
     public interface IQueryDispatcher
     {
-        Task<TQueryResult> Dispatch<TQuery, TQueryResult>(TQuery query, CancellationToken cancellation = default) where TQuery: IQuery;
+        Task<TResult> Dispatch<TResult>(IQuery<TResult> query, CancellationToken cancellationToken = default);
+
     }
 }
