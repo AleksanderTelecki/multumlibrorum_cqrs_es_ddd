@@ -1,4 +1,4 @@
-namespace User.Domain.Tests
+namespace Client.Domain.Tests
 {
     public class UnitTest1
     {
