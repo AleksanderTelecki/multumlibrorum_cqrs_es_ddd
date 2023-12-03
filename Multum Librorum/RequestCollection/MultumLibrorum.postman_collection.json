@@ -1,0 +1,453 @@
+{
+	"info": {
+		"_postman_id": "bd09c76e-74ee-4a36-b3d4-bafccd0bba50",
+		"name": "MultumLibrorum",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27788979"
+	},
+	"item": [
+		{
+			"name": "Books",
+			"item": [
+				{
+					"name": "AddBooks",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"EVA 1010\",\r\n    \"author\": \"Gendo Ikari\",\r\n    \"description\": \"In the secluded village of Eldoria, nestled on the edge of the Timeless Forest, a young woman named Elara discovers an ancient diary hidden beneath the floorboards of her family's ancestral home. As she delves into its cryptic pages, she learns of the Forest's best-kept secret: it is alive, sentient, and holds the memories of countless epochs.\",\r\n    \"pageCount\": 20,\r\n    \"price\": \"169.99\",\r\n    \"quantity\": 5000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5096/api/v1/Books/Add",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5096",
+							"path": [
+								"api",
+								"v1",
+								"Books",
+								"Add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateDetails",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"3A8ACC45-F96A-4763-AB5C-76C8EF0805D8\",\r\n    \"title\": \"EVA 101\",\r\n    \"author\": \"Gendo\",\r\n    \"description\": \"In the secluded village of Eldoria, nestled on the edge of the Timeless Forest, a young woman named Elara discovers an ancient diary hidden beneath the floorboards of her family's ancestral home. As she delves into its cryptic pages, she learns of the Forest's best-kept secret: it is alive, sentient, and holds the memories of countless epochs.\",\r\n    \"pageCount\": 321\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5096/api/v1/Books/UpdateDetails",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5096",
+							"path": [
+								"api",
+								"v1",
+								"Books",
+								"UpdateDetails"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "IncludeBookFile",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/48782/Desktop/Uniwerso/Thesis-Turis.pdf"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5096/api/v1/Books/IncludeFile/D0F6A408-66B6-4E12-88B5-F637377AB07A",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5096",
+							"path": [
+								"api",
+								"v1",
+								"Books",
+								"IncludeFile",
+								"D0F6A408-66B6-4E12-88B5-F637377AB07A"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Promotions",
+			"item": [
+				{
+					"name": "New Request",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"Description\": \"Spring Sale 4\",\r\n  \"PromotionInPercentage\": 0.20,\r\n  \"Products\": [\r\n    \"3A8ACC45-F96A-4763-AB5C-76C8EF0805D8\",\r\n    \"E73B11C9-19B3-4593-9EDA-1AC18DCFACDC\"\r\n  ],\r\n  \"EndDate\": \"2023-10-31T13:50:59\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5267/api/v1/Promotion/Add",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5267",
+							"path": [
+								"api",
+								"v1",
+								"Promotion",
+								"Add"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Clients",
+			"item": [
+				{
+					"name": "RegisterClient",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"example@email.com\",\r\n    \"Password\": \"YourPassword123\",\r\n    \"Name\": \"John\",\r\n    \"Surname\": \"Doe\",\r\n    \"DateOfBirth\": \"1990-01-01T00:00:00\",\r\n    \"Street\": \"123 Main St\",\r\n    \"City\": \"Anytown\",\r\n    \"Region\": \"Anystate\",\r\n    \"PostalCode\": \"12345\",\r\n    \"Country\": \"Countryland\",\r\n    \"Phone\": \"+1234567890\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5175/api/v1/Client/Register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5175",
+							"path": [
+								"api",
+								"v1",
+								"Client",
+								"Register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateProfile",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Id\": \"E3186841-EC31-4B6A-8F8E-47BC89B4BE79\",\r\n    \"Name\": \"John\",\r\n    \"Surname\": \"Kadzi\",\r\n    \"DateOfBirth\": \"1990-01-01T00:00:00\",\r\n    \"Street\": \"123 Main St\",\r\n    \"City\": \"Anytown\",\r\n    \"Region\": \"Anystate\",\r\n    \"PostalCode\": \"12345\",\r\n    \"Country\": \"Countryland\",\r\n    \"Phone\": \"+1234567890\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5175/api/v1/User/UpdateProfile",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5175",
+							"path": [
+								"api",
+								"v1",
+								"User",
+								"UpdateProfile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Id\": \"E3186841-EC31-4B6A-8F8E-47BC89B4BE79\",\r\n    \"NewPassword\": \"NewPassword123\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5175/api/v1/User/ChangePassword",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5175",
+							"path": [
+								"api",
+								"v1",
+								"User",
+								"ChangePassword"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Token",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJKV1RTZXJ2aWNlQWNjZXNzVG9rZW4iLCJqdGkiOiJiZDFmYTVkZC00YWUxLTRmNDUtOTQzNy0xMTViZGM5YWIzYjIiLCJpYXQiOiIxOS4xMS4yMDIzIDEzOjEwOjQ2IiwiVXNlcklkIjoiZTMxODY4NDEtZWMzMS00YjZhLThmOGUtNDdiYzg5YjRiZTc5IiwiRGlzcGxheU5hbWUiOiJKb2huIiwiRW1haWwiOiJleGFtcGxlQGVtYWlsLmNvbSIsImV4cCI6MTcwMDQwMDA0Nn0.QuHZBjJh6lvHDfNJ1v0YGbYYxCFKC9t5LjdZ0DjmSaQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"example@email.com\",\r\n    \"Password\": \"NewPassword123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5175/api/v1/Token",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5175",
+							"path": [
+								"api",
+								"v1",
+								"Token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Employees",
+			"item": [
+				{
+					"name": "RegisterEmployee",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"example@email.com\",\r\n    \"Password\": \"YourPassword123\",\r\n    \"Name\": \"John\",\r\n    \"Surname\": \"Doe\",\r\n    \"Role\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5028/api/v1/Employee/Register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5028",
+							"path": [
+								"api",
+								"v1",
+								"Employee",
+								"Register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateProfile",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Id\": \"B766B273-919F-49B5-9914-4D180A3DC2F1\",\r\n    \"Name\": \"John\",\r\n    \"Surname\": \"Kadzi\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5028/api/v1/Employee/UpdateName",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5028",
+							"path": [
+								"api",
+								"v1",
+								"Employee",
+								"UpdateName"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Id\": \"B766B273-919F-49B5-9914-4D180A3DC2F1\",\r\n    \"NewPassword\": \"NewPassword123\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5028/api/v1/Employee/ChangePassword",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5028",
+							"path": [
+								"api",
+								"v1",
+								"Employee",
+								"ChangePassword"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Role",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Id\": \"B766B273-919F-49B5-9914-4D180A3DC2F1\",\r\n    \"NewRole\": 2\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5028/api/v1/Employee/ChangeRole",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5028",
+							"path": [
+								"api",
+								"v1",
+								"Employee",
+								"ChangeRole"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Token",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJKV1RTZXJ2aWNlQWNjZXNzVG9rZW4iLCJqdGkiOiJiZDFmYTVkZC00YWUxLTRmNDUtOTQzNy0xMTViZGM5YWIzYjIiLCJpYXQiOiIxOS4xMS4yMDIzIDEzOjEwOjQ2IiwiVXNlcklkIjoiZTMxODY4NDEtZWMzMS00YjZhLThmOGUtNDdiYzg5YjRiZTc5IiwiRGlzcGxheU5hbWUiOiJKb2huIiwiRW1haWwiOiJleGFtcGxlQGVtYWlsLmNvbSIsImV4cCI6MTcwMDQwMDA0Nn0.QuHZBjJh6lvHDfNJ1v0YGbYYxCFKC9t5LjdZ0DjmSaQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"example@email.com\",\r\n    \"Password\": \"NewPassword123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5028/api/v1/Token",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5028",
+							"path": [
+								"api",
+								"v1",
+								"Token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
