@@ -6,27 +6,25 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="KafkaFlow" Version="2.4.1" />
-    <PackageReference Include="KafkaFlow.LogHandler.Console" Version="2.4.1" />
-    <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="2.4.1" />
-    <PackageReference Include="KafkaFlow.Retry" Version="2.1.2" />
-    <PackageReference Include="KafkaFlow.Serializer" Version="2.4.1" />
-    <PackageReference Include="KafkaFlow.Serializer.JsonCore" Version="2.4.1" />
-    <PackageReference Include="KafkaFlow.TypedHandler" Version="2.4.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="KafkaFlow" Version="2.4.1" />
+		<PackageReference Include="KafkaFlow.LogHandler.Console" Version="2.4.1" />
+		<PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="2.4.1" />
+		<PackageReference Include="KafkaFlow.Retry" Version="2.1.2" />
+		<PackageReference Include="KafkaFlow.Serializer" Version="2.4.1" />
+		<PackageReference Include="KafkaFlow.Serializer.JsonCore" Version="2.4.1" />
+		<PackageReference Include="KafkaFlow.TypedHandler" Version="2.4.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.25" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+		<PackageReference Include="Marten" Version="6.2.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+	</ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\CQRS.Core\CQRS.Core.csproj" />
     <ProjectReference Include="..\..\Kafka.Core\Kafka.Core.csproj" />
     <ProjectReference Include="..\..\Marte.EventSourcing.Core\Marte.EventSourcing.Core.csproj" />
     <ProjectReference Include="..\Sales.Domain\Sales.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\" />
   </ItemGroup>
 
 </Project>

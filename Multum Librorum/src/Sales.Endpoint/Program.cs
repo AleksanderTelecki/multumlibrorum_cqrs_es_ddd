@@ -1,19 +1,21 @@
-using Kafka.Core.Abstract;
 using Kafka.Core.Options;
 using Kafka.Core.Services.Consumer;
-using Kafka.Core.Services.Producer;
+using Kafka.Core.Extensions;
 using KafkaFlow;
 using KafkaFlow.Serializer;
-using Marte.EventSourcing.Core.Abstract;
-using Marten.EventSourcing.Core;
-using Kafka.Core.Extensions;
 using KafkaFlow.Retry;
 using Kafka.Core.Middleware;
-using Sales.Domain.EventHandlers;
 using Marten;
 using Weasel.Core;
+using Marte.EventSourcing.Core.Abstract;
+using Marten.EventSourcing.Core;
+using Kafka.Core.Abstract;
+using Kafka.Core.Services.Producer;
 using CQRS.Core.Extensions;
+using System.Text;
 using Sales.Domain;
+using Microsoft.EntityFrameworkCore;
+using Sales.Domain.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,18 +25,15 @@ var kafkaConsumerConf = builder.Configuration.GetSection(nameof(KafkaConsumerOpt
 var kafkaBootstrapServer = builder.Configuration.GetConnectionString("KafkaBootstrapServer")!;
 
 // Configurations
+builder.Services.AddDbContext<SalesDataContext>(o => o.UseLazyLoadingProxies().UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
 builder.Services.Configure<KafkaConsumerOptions>(builder.Configuration.GetSection(nameof(KafkaConsumerOptions)));
 builder.Services.Configure<KafkaProducerOptions>(builder.Configuration.GetSection(nameof(KafkaProducerOptions)));
 
 // Services
 builder.Services.AddScoped<IEventProducer, EventProducer>();
 builder.Services.AddScoped<IAggregateReporitory, AggregateRepository>();
+builder.Services.AddScoped<ICartRepository, CartRepository>();
 
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 builder.Services.AddMarten(options =>
 {
@@ -96,8 +95,13 @@ builder.Services.AddKafka(
 
 builder.Services.AddHostedService<KafkaConsumerHostedService>();
 
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -113,3 +117,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+

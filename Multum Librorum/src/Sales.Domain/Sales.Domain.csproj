@@ -6,9 +6,23 @@
     <Nullable>disable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="KafkaFlow" Version="2.4.1" />
+		<PackageReference Include="KafkaFlow.LogHandler.Console" Version="2.4.1" />
+		<PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="2.4.1" />
+		<PackageReference Include="KafkaFlow.TypedHandler" Version="2.4.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.12" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.12" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="7.0.12" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.12" />
+	</ItemGroup>
+
+	<ItemGroup>
     <ProjectReference Include="..\..\CQRS.Core\CQRS.Core.csproj" />
+    <ProjectReference Include="..\..\Marte.EventSourcing.Core\Marte.EventSourcing.Core.csproj" />
+    <ProjectReference Include="..\Client.Messages\Client.Messages.csproj" />
     <ProjectReference Include="..\Product.Messages\Product.Messages.csproj" />
+    <ProjectReference Include="..\Sales.Messages\Sales.Messages.csproj" />
   </ItemGroup>
 
 </Project>
