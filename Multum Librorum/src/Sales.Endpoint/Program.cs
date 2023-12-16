@@ -12,7 +12,6 @@ using Marten.EventSourcing.Core;
 using Kafka.Core.Abstract;
 using Kafka.Core.Services.Producer;
 using CQRS.Core.Extensions;
-using System.Text;
 using Sales.Domain;
 using Microsoft.EntityFrameworkCore;
 using Sales.Domain.Repository;

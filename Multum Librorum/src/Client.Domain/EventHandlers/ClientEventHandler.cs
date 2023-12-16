@@ -1,9 +1,4 @@
 ﻿using CQRS.Core.Events.Abstract;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Client.Domain.Repository;
 using Client.Domain.Repository.Entity;
 using Client.Messages.Events;
@@ -64,7 +59,7 @@ namespace Client.Domain.EventHandlers
         public async Task Handle(ClientPasswordChangedEvent @event, CancellationToken cancellation)
         {
             var userEntity = await _userRepository.GetClient(@event.Id);
-
+        
             userEntity.Password = @event.NewPassword;
 
             await _userRepository.UpdateClient(userEntity);

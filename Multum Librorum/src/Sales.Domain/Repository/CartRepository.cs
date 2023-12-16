@@ -21,7 +21,7 @@ namespace Sales.Domain.Repository
 
     public class CartRepository : ICartRepository
     {
-        public SalesDataContext _salesDataContext;
+        private readonly SalesDataContext _salesDataContext;
 
         public CartRepository(SalesDataContext salesDataContext)
         {
@@ -30,12 +30,12 @@ namespace Sales.Domain.Repository
         
         public async Task AddItemToCart(CartItemEntity cartItemEntity, Guid cartId)
         {
-            var cart = _salesDataContext.Carts.Include(x=>x.Items).First(x => x.Id == cartId);
-            var cartItem = new CartItemEntity { CartEntityId = cartId, Id = cartItemEntity.Id, ProductId = cartItemEntity.ProductId, Quantity = cartItemEntity.Quantity };
-            cart.Items.Add(cartItem);
-
-            //_salesDataContext.Carts.Update(cart);
-
+            var cart = _salesDataContext
+                .Carts
+                .Include(x=>x.Items)
+                .Single(x => x.Id == cartId);
+            
+            cart.Items.Add(cartItemEntity);
             await _salesDataContext.SaveChangesAsync();
         }
 
