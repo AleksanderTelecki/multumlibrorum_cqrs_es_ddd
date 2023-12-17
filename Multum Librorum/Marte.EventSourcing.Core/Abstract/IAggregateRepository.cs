@@ -2,7 +2,7 @@
 
 namespace Marte.EventSourcing.Core.Abstract
 {
-    public interface IAggregateReporitory
+    public interface IAggregateRepository
     {
         Task StoreAsync(AggregateRoot aggregate, CancellationToken ct = default);
 

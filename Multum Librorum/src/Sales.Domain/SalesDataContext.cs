@@ -17,8 +17,12 @@ namespace Sales.Domain
             _options = options;
         }
 
-        public DbSet<CartEntity> Carts { get; set; }
+        public DbSet<CartEntity> Carts { get; init; }
 
-        public DbSet<CartItemEntity> CartItems { get; set; }
+        public DbSet<CartItemEntity> CartItems { get; init; }
+        
+        public DbSet<OrderEntity> Orders { get; init; }
+        
+        public DbSet<OrderItemEntity> OrderItems { get; init; }
     }
 }

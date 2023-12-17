@@ -8,7 +8,7 @@ using Client.Messages.Models;
 
 namespace Client.Messages.Queries
 {
-    public class GetClientByEmailQuery: IQuery<ClientInfo>
+    public class GetClientByEmailQuery: Query<ClientInfo>
     {
         public string Email { get; set; }
     }

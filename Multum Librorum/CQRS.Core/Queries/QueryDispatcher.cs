@@ -29,6 +29,6 @@ namespace CQRS.Core.Queries
                 Console.WriteLine($"Handler not registered for the query of type: {queryHandlerType.FullName}");
                 return (Task<TResult>)Task.CompletedTask;
             }
-}
+        }
     }
 }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Employee.Messages.Queries
 {
-    public class GetEmployeeByEmail: IQuery<EmployeeInfo>
+    public class GetEmployeeByEmail: Query<EmployeeInfo>
     {
         public string Email { get; set; }
     }

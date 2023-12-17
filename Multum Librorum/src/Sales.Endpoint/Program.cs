@@ -1,3 +1,4 @@
+using CQRS.Communication.Extensions;
 using Kafka.Core.Options;
 using Kafka.Core.Services.Consumer;
 using Kafka.Core.Extensions;
@@ -30,8 +31,9 @@ builder.Services.Configure<KafkaProducerOptions>(builder.Configuration.GetSectio
 
 // Services
 builder.Services.AddScoped<IEventProducer, EventProducer>();
-builder.Services.AddScoped<IAggregateReporitory, AggregateRepository>();
+builder.Services.AddScoped<IAggregateRepository, AggregateRepository>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
 
 builder.Services.AddMarten(options =>
@@ -95,6 +97,7 @@ builder.Services.AddKafka(
 builder.Services.AddHostedService<KafkaConsumerHostedService>();
 
 builder.Services.AddControllers();
+builder.Services.AddRestQueryController(builder.Configuration);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

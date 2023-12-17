@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sales.Domain.Repository.Entity
 {
-    [Table("CartItem", Schema = "Sales")]
+    [Table("CartItems", Schema = "Sale")]
     public class CartItemEntity
     {
         [DatabaseGenerated(DatabaseGeneratedOption.None)]

@@ -19,12 +19,12 @@ namespace Client.Domain.CommandHandlers
         ICommandHandler<ChangeUserPasswordCommand>
     {
 
-        private readonly IAggregateReporitory _aggregateReporitory;
+        private readonly IAggregateRepository _aggregateRepository;
         private readonly IQueryDispatcher _queryDispatcher;
 
-        public ClientCommandHandler(IAggregateReporitory aggregateReporitory, IQueryDispatcher queryDispatcher)
+        public ClientCommandHandler(IAggregateRepository aggregateRepository, IQueryDispatcher queryDispatcher)
         {
-            _aggregateReporitory = aggregateReporitory;
+            _aggregateRepository = aggregateRepository;
             _queryDispatcher = queryDispatcher;
         }
 
@@ -48,12 +48,12 @@ namespace Client.Domain.CommandHandlers
                 command.Country, 
                 command.Phone);
 
-            await _aggregateReporitory.StoreAsync(user);
+            await _aggregateRepository.StoreAsync(user);
         }
 
         public async Task Handle(UpdateProfileInfoCommand command, CancellationToken cancellation)
         {
-            var user = await _aggregateReporitory.LoadAsync<Aggregates.Client>(command.Id);
+            var user = await _aggregateRepository.LoadAsync<Aggregates.Client>(command.Id);
 
             user.UpdateInfo(
                 command.Name, 
@@ -66,16 +66,16 @@ namespace Client.Domain.CommandHandlers
                 command.Country, 
                 command.Phone);
 
-            await _aggregateReporitory.StoreAsync(user);
+            await _aggregateRepository.StoreAsync(user);
         }
 
         public async Task Handle(ChangeUserPasswordCommand command, CancellationToken cancellation)
         {
-            var user = await _aggregateReporitory.LoadAsync<Aggregates.Client>(command.Id);
+            var user = await _aggregateRepository.LoadAsync<Aggregates.Client>(command.Id);
 
             user.ChangePassword(command.NewPassword);
 
-            await _aggregateReporitory.StoreAsync(user);
+            await _aggregateRepository.StoreAsync(user);
         }
     }
 }

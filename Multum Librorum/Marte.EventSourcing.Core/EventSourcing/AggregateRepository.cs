@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 
 namespace Marten.EventSourcing.Core
 {
-    public sealed class AggregateRepository: IAggregateReporitory
+    public sealed class AggregateRepository: IAggregateRepository
     {
         private readonly IDocumentStore store;
         private readonly IEventProducer eventProducer;

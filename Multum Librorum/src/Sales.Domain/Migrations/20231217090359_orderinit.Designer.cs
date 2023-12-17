@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sales.Domain;
 
@@ -11,9 +12,11 @@ using Sales.Domain;
 namespace Sales.Domain.Migrations
 {
     [DbContext(typeof(SalesDataContext))]
-    partial class SalesDataContextModelSnapshot : ModelSnapshot
+    [Migration("20231217090359_orderinit")]
+    partial class orderinit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

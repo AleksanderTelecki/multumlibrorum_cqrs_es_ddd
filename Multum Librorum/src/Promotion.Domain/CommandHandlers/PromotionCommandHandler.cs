@@ -14,33 +14,33 @@ namespace Promotion.Domain.CommandHandlers
         ICommandHandler<PromotionEditCommand>,
         ICommandHandler<PromotionEndedCommand>
     {
-        private readonly IAggregateReporitory _aggregateReporitory;
+        private readonly IAggregateRepository _aggregateRepository;
 
-        public PromotionCommandHandler(IAggregateReporitory aggregateReporitory)
+        public PromotionCommandHandler(IAggregateRepository aggregateRepository)
         {
-            _aggregateReporitory = aggregateReporitory;
+            _aggregateRepository = aggregateRepository;
         }
 
         public async Task Handle(PromotionAddCommand command, CancellationToken cancellation)
         {
             var promotion = new Aggregates.Promotion(command.Description, command.PromotionInPercentage, command.Products, command.EndDate);
-            await _aggregateReporitory.StoreAsync(promotion);
+            await _aggregateRepository.StoreAsync(promotion);
         }
 
         public async Task Handle(PromotionEditCommand command, CancellationToken cancellation)
         {
-            var promotion = await _aggregateReporitory.LoadAsync<Aggregates.Promotion>(command.Id);
+            var promotion = await _aggregateRepository.LoadAsync<Aggregates.Promotion>(command.Id);
             promotion.Edit(command.Description, command.PromotionInPercentage, command.Products, command.EndDate);
 
-            await _aggregateReporitory.StoreAsync(promotion);
+            await _aggregateRepository.StoreAsync(promotion);
         }
 
         public async Task Handle(PromotionEndedCommand command, CancellationToken cancellation)
         {
-            var promotion = await _aggregateReporitory.LoadAsync<Aggregates.Promotion>(command.Id);
+            var promotion = await _aggregateRepository.LoadAsync<Aggregates.Promotion>(command.Id);
             promotion.EndPromotion();
 
-            await _aggregateReporitory.StoreAsync(promotion);
+            await _aggregateRepository.StoreAsync(promotion);
         }
     }
 }

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sales.Domain.Repository.Entity
 {
-    [Table("Cart", Schema = "Sales")]
+    [Table("Carts", Schema = "Sale")]
     public class CartEntity
     {
         public Guid Id { get; set; }

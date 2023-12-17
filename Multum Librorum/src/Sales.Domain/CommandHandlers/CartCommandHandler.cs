@@ -18,41 +18,41 @@ namespace Sales.Domain.CommandHandlers
 
     {
 
-        private readonly IAggregateReporitory _aggregateReporitory;
+        private readonly IAggregateRepository _aggregateRepository;
 
-        public CartCommandHandler(IAggregateReporitory aggregateReporitory)
+        public CartCommandHandler(IAggregateRepository aggregateRepository)
         {
-            _aggregateReporitory = aggregateReporitory;
+            _aggregateRepository = aggregateRepository;
         }
 
         public async Task Handle(AddItemToCartCommand command, CancellationToken cancellation)
         {
-            var cart =  await _aggregateReporitory.LoadAsync<Cart>(command.Id);
+            var cart =  await _aggregateRepository.LoadAsync<Cart>(command.Id);
             cart.AddItem(command.ProductId, command.Quantity);
 
-            await _aggregateReporitory.StoreAsync(cart);
+            await _aggregateRepository.StoreAsync(cart);
         }
 
         public async Task Handle(RemoveItemFromCartCommand command, CancellationToken cancellation)
         {
-            var cart = await _aggregateReporitory.LoadAsync<Cart>(command.Id);
+            var cart = await _aggregateRepository.LoadAsync<Cart>(command.Id);
             cart.RemoveItem(command.ProductId);
 
-            await _aggregateReporitory.StoreAsync(cart);
+            await _aggregateRepository.StoreAsync(cart);
         }
 
         public async Task Handle(EditCartItemCommand command, CancellationToken cancellation)
         {
-            var cart = await _aggregateReporitory.LoadAsync<Cart>(command.Id);
+            var cart = await _aggregateRepository.LoadAsync<Cart>(command.Id);
             cart.EditItemQuantity(command.ProductId, command.NewQuantity);
 
-            await _aggregateReporitory.StoreAsync(cart);
+            await _aggregateRepository.StoreAsync(cart);
         }
 
         public async Task Handle(CreateCartCommand command, CancellationToken cancellation)
         {
             var cart = new Cart(command.ClientId);
-            await _aggregateReporitory.StoreAsync(cart);
+            await _aggregateRepository.StoreAsync(cart);
         }
     }
 }

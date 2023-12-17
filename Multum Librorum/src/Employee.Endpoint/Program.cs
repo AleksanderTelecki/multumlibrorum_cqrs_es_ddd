@@ -33,7 +33,7 @@ builder.Services.Configure<KafkaProducerOptions>(builder.Configuration.GetSectio
 
 // Services
 builder.Services.AddScoped<IEventProducer, EventProducer>();
-builder.Services.AddScoped<IAggregateReporitory, AggregateRepository>();
+builder.Services.AddScoped<IAggregateRepository, AggregateRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 
 

@@ -19,12 +19,12 @@ namespace Employee.Domain.CommandHandlers
         ICommandHandler<UpdateEmployeeNameCommand>
     {
 
-        private readonly IAggregateReporitory _aggregateReporitory;
+        private readonly IAggregateRepository _aggregateRepository;
         private readonly IQueryDispatcher _queryDispatcher;
 
-        public EmployeeCommandHandler(IAggregateReporitory aggregateReporitory, IQueryDispatcher queryDispatcher)
+        public EmployeeCommandHandler(IAggregateRepository aggregateRepository, IQueryDispatcher queryDispatcher)
         {
-            _aggregateReporitory = aggregateReporitory;
+            _aggregateRepository = aggregateRepository;
             _queryDispatcher = queryDispatcher;
         }
 
@@ -42,34 +42,34 @@ namespace Employee.Domain.CommandHandlers
                 command.Surname,
                 command.Role);
 
-            await _aggregateReporitory.StoreAsync(employee);
+            await _aggregateRepository.StoreAsync(employee);
         }
 
         public async Task Handle(ChangeEmployeePasswordCommand command, CancellationToken cancellation)
         {
-            var employee = await _aggregateReporitory.LoadAsync<Aggregates.Employee>(command.Id);
+            var employee = await _aggregateRepository.LoadAsync<Aggregates.Employee>(command.Id);
 
             employee.ChangePassword(command.NewPassword);
 
-            await _aggregateReporitory.StoreAsync(employee);
+            await _aggregateRepository.StoreAsync(employee);
         }
 
         public async Task Handle(ChangeEmployeeRoleCommand command, CancellationToken cancellation)
         {
-            var employee = await _aggregateReporitory.LoadAsync<Aggregates.Employee>(command.Id);
+            var employee = await _aggregateRepository.LoadAsync<Aggregates.Employee>(command.Id);
 
             employee.ChangeRole(command.NewRole);
 
-            await _aggregateReporitory.StoreAsync(employee);
+            await _aggregateRepository.StoreAsync(employee);
         }
 
         public async Task Handle(UpdateEmployeeNameCommand command, CancellationToken cancellation)
         {
-            var employee = await _aggregateReporitory.LoadAsync<Aggregates.Employee>(command.Id);
+            var employee = await _aggregateRepository.LoadAsync<Aggregates.Employee>(command.Id);
 
             employee.UpdateInfo(command.Name, command.Surname);
 
-            await _aggregateReporitory.StoreAsync(employee);
+            await _aggregateRepository.StoreAsync(employee);
         }
     }
 }
