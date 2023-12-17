@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Promotion.Messages.Commands
 {
-    public class PromotionAddCommand: ICommand
+    public class PromotionAddCommand: Command
     {
         public string Description { get; set; }
         public decimal PromotionInPercentage { get; set; }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Product.Messages.Commands
 {
-    public class AddBookPromotionCommand: ICommand
+    public class AddBookPromotionCommand: Command
     {
         public Guid Id { get; set; }
         public decimal PromotedPercentage { get; set; }

@@ -69,6 +69,18 @@ namespace Product.Domain.Aggregates
             });
         }
 
+        public void DecreaseQuantity(int decreasedQuantity)
+        {
+            if ((Quantity - (decreasedQuantity) < 0))
+                throw new ArgumentOutOfRangeException(nameof(decreasedQuantity), $"Decreased quantity value is bigger then book quantity: {Quantity}");
+            
+            RaiseEvent(new BookQuantityDecreasedEvent
+            {
+                Id = Id,
+                BookDecreasedQuantity = decreasedQuantity
+            });
+        }
+
         public void MarkAsHidden()
         {
             RaiseEvent(new BookMarkedAsHiddenEvent
@@ -147,6 +159,13 @@ namespace Product.Domain.Aggregates
         public void Apply(BookQuantityUpdatedEvent @event)
         {
             Quantity = @event.Quantity;
+
+            Version++;
+        }
+        
+        public void Apply(BookQuantityDecreasedEvent @event)
+        {
+            Quantity -= @event.BookDecreasedQuantity;
 
             Version++;
         }

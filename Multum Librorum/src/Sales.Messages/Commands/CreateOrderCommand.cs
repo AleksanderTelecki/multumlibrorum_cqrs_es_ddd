@@ -2,7 +2,7 @@
 
 namespace Sales.Messages.Commands;
 
-public class CreateOrderCommand: ICommand
+public class CreateOrderCommand: Command
 {
-    public Guid ClientId { get; set; }
+    public Guid CartId { get; set; }
 }

@@ -2,6 +2,7 @@
 using CQRS.Communication.Abstract;
 using CQRS.Communication.Enums;
 using CQRS.Communication.Options;
+using CQRS.Core.Commands.Abstract;
 using CQRS.Core.Queries.Abstract;
 using Microsoft.Extensions.Options;
 
@@ -29,6 +30,17 @@ public class RestDispatcher: IRestDispatcher
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadFromJsonAsync<TResult>();
+    }
+    
+    public async Task DispatchCommand<TCommand>(TCommand command, EndpointEnum endpoint) where TCommand : ICommand
+    {
+        var httpClient = GetClient(endpoint);
+        
+        var jsonContent = JsonSerializer.Serialize(command, command.GetType());
+        var content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
+        
+        var response = await httpClient.PostAsync("RestCommand", content);
+        response.EnsureSuccessStatusCode();
     }
 
     private HttpClient GetClient(EndpointEnum endpoint)

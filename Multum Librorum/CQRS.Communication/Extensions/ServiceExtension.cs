@@ -12,6 +12,7 @@ public static class ServiceExtensions
     {
         services.Configure<RestDispatcherOptions>(builderConfiguration.GetSection(nameof(RestDispatcherOptions)));
         services.AddControllers().AddApplicationPart(typeof(RestQueryController).Assembly);
+        services.AddControllers().AddApplicationPart(typeof(RestCommandController).Assembly);
         services.AddHttpClient();
         
         services.AddScoped<IRestDispatcher, RestDispatcher>();

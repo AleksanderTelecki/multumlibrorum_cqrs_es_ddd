@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 namespace Employee.Messages.Commands
 {
-    public class ChangeEmployeePasswordCommand: ICommand
+    public class ChangeEmployeePasswordCommand: Command
     {
         public Guid Id { get; set; }
         public string NewPassword { get;set; }

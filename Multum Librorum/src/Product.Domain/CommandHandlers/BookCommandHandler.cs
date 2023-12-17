@@ -1,7 +1,6 @@
 ﻿using CQRS.Core.Commands.Abstract;
 using Marte.EventSourcing.Core.Abstract;
 using Product.Domain.Aggregates;
-using Product.Domain.Repository;
 using Product.Messages.Commands;
 
 namespace Product.Domain.CommandHandlers
@@ -16,9 +15,11 @@ namespace Product.Domain.CommandHandlers
         ICommandHandler<AddCommentToBookCommand>,
         ICommandHandler<RemoveBookCommentCommand>,
         ICommandHandler<AddBookPromotionCommand>,
-        ICommandHandler<RemoveBookPromotionCommand>
+        ICommandHandler<RemoveBookPromotionCommand>,
+        ICommandHandler<InitializeBookOrderCommand>
     {
         private readonly IAggregateRepository _aggregateRepository;
+        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
 
         public BookCommandHandler(IAggregateRepository aggregateRepository)
         {
@@ -101,6 +102,32 @@ namespace Product.Domain.CommandHandlers
             book.SetPromotedPrice(null);
 
             await _aggregateRepository.StoreAsync(book);
+        }
+
+        public async Task Handle(InitializeBookOrderCommand command, CancellationToken cancellation)
+        {
+            await _lock.WaitAsync(cancellation);
+            try
+            {
+                List<Book> books = new();
+
+                foreach (var product in command.ProductsWithQuantity)
+                {
+                    var book = await _aggregateRepository.LoadAsync<Book>(product.productId);
+                    book.DecreaseQuantity(product.quantity);
+
+                    books.Add(book);
+                }
+
+                foreach (var book in books)
+                {
+                    await _aggregateRepository.StoreAsync(book);
+                }
+            }
+            finally
+            {
+                _lock.Release();
+            }
         }
     }
 }

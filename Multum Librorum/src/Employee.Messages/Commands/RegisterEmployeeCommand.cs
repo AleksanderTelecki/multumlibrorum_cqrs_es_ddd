@@ -3,7 +3,7 @@ using Employee.Messages.Enums;
 
 namespace Employee.Messages.Commands
 {
-    public class RegisterEmployeeCommand: ICommand
+    public class RegisterEmployeeCommand: Command
     {
         public string Email { get; set; }
         public string Password { get; set; }

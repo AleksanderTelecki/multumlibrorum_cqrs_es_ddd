@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Product.Messages.Commands
 {
-    public class UnHideBookCommand: ICommand
+    public class UnHideBookCommand: Command
     {
         public Guid Id { get; set; }
     }

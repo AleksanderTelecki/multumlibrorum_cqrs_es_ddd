@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Sales.Messages.Commands
 {
-    public class EditCartItemCommand: ICommand
+    public class EditCartItemCommand: Command
     {
         public Guid Id { get; set; }
         public Guid ProductId { get; set; }

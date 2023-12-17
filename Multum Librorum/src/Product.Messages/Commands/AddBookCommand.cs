@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Product.Messages.Commands
 {
-    public class AddBookCommand: ICommand
+    public class AddBookCommand: Command
     {
         public string Title { get; set; }
         public string Author { get; set; }

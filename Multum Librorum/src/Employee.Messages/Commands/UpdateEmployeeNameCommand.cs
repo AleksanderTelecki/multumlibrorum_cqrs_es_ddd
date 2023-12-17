@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Employee.Messages.Commands
 {
-    public class UpdateEmployeeNameCommand: ICommand
+    public class UpdateEmployeeNameCommand: Command
     {
         public Guid Id { get; set; }
         public string Name { get; set; }

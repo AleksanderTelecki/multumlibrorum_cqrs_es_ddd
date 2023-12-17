@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Promotion.Messages.Commands
 {
-    public class PromotionEditCommand: ICommand
+    public class PromotionEditCommand: Command
     {
         public Guid Id { get; set; }
         public string Description { get; set; }

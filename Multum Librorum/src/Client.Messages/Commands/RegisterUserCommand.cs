@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Client.Messages.Commands
 {
-    public class RegisterUserCommand: ICommand
+    public class RegisterUserCommand: Command
     {
         public string Email { get; set; }
         public string Password { get; set; }

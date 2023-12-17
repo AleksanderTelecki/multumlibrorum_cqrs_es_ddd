@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Client.Messages.Commands
 {
-    public class ChangeUserPasswordCommand: ICommand
+    public class ChangeUserPasswordCommand: Command
     {
         public Guid Id { get; set; }
         public string NewPassword { get; set; }
