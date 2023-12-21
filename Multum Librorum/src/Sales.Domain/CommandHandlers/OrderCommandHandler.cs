@@ -1,5 +1,4 @@
-﻿using Client.Messages.Queries;
-using CQRS.Communication.Abstract;
+﻿using CQRS.Communication.Abstract;
 using CQRS.Communication.Enums;
 using CQRS.Core.Commands.Abstract;
 using Marte.EventSourcing.Core.Abstract;
@@ -27,11 +26,9 @@ public class OrderCommandHandler:
     public async Task Handle(CreateOrderCommand command, CancellationToken cancellation)
     {
         var cart = await _aggregateRepository.LoadAsync<Cart>(command.CartId);
-
-        var x = await _restDispatcher.DispatchQuery(new GetClientByEmailQuery { Email = "example7@email.com" }, EndpointEnum.ClientEndpoint);
         
         await _restDispatcher.DispatchCommand(
-            new InitializeBookOrderCommand { ProductsWithQuantity = cart.Items.Select(x => (x.ProductId, x.Quantity)).ToList()}, EndpointEnum.ProductEndpoint);
+            new InitializeBookOrderCommand { ProductsWithQuantity = cart.Items.ToDictionary(x => x.ProductId, y => y.Quantity)}, EndpointEnum.ProductEndpoint);
         
     }
 }

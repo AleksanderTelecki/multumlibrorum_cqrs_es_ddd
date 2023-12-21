@@ -4,5 +4,5 @@ namespace Product.Messages.Commands;
 
 public class InitializeBookOrderCommand: ICommand
 {
-    public List<(Guid productId, int quantity)> ProductsWithQuantity { get; set; }
+    public Dictionary<Guid, int> ProductsWithQuantity { get; set; }
 }

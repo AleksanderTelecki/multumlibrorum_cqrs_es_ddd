@@ -19,7 +19,7 @@ namespace Product.Domain.CommandHandlers
         ICommandHandler<InitializeBookOrderCommand>
     {
         private readonly IAggregateRepository _aggregateRepository;
-        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
+        private readonly object _lockObject = new object();
 
         public BookCommandHandler(IAggregateRepository aggregateRepository)
         {
@@ -106,28 +106,23 @@ namespace Product.Domain.CommandHandlers
 
         public async Task Handle(InitializeBookOrderCommand command, CancellationToken cancellation)
         {
-            /*await _lock.WaitAsync(cancellation);
-            try
+            lock (_lockObject)
             {
                 List<Book> books = new();
 
                 foreach (var product in command.ProductsWithQuantity)
                 {
-                    var book = await _aggregateRepository.LoadAsync<Book>(product.productId);
-                    book.DecreaseQuantity(product.quantity);
+                    var book = _aggregateRepository.LoadAsync<Book>(product.Key).GetAwaiter().GetResult();
+                    book.DecreaseQuantity(product.Value);
 
                     books.Add(book);
                 }
 
                 foreach (var book in books)
                 {
-                    await _aggregateRepository.StoreAsync(book);
+                    _aggregateRepository.StoreAsync(book).GetAwaiter().GetResult();
                 }
             }
-            finally
-            {
-                _lock.Release();
-            }*/
         }
     }
 }
