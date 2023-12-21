@@ -1,12 +1,15 @@
-﻿using System.Text.Json;
-using CQRS.Communication.Abstract;
+﻿using CQRS.Communication.Abstract;
+using CQRS.Communication.DTOs;
 using CQRS.Communication.Enums;
 using CQRS.Communication.Options;
 using CQRS.Core.Commands.Abstract;
 using CQRS.Core.Queries.Abstract;
 using Microsoft.Extensions.Options;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace CQRS.Communication.Services;
+
+// TODO: REFACTOR
 
 public class RestDispatcher: IRestDispatcher
 {
@@ -19,14 +22,14 @@ public class RestDispatcher: IRestDispatcher
         _clientFactory = clientFactory;
     }
     
-    public async Task<TResult> DispatchQuery<TResult>(Query<TResult> query, EndpointEnum endpoint)
+    public async Task<TResult> DispatchQuery<TResult>(IQuery<TResult> query, EndpointEnum endpoint)
     {
         var httpClient = GetClient(endpoint);
+
+        var queryData = JsonSerializer.Serialize(query, query.GetType());
+        var cqrsMessageWrap =  new CqrsMessage(query.Type, queryData);
         
-        var jsonContent = JsonSerializer.Serialize(query, query.GetType());
-        var content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
-        
-        var response = await httpClient.PostAsync("RestQuery", content);
+        var response = await httpClient.PostAsJsonAsync("RestQuery", cqrsMessageWrap);
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadFromJsonAsync<TResult>();
@@ -36,10 +39,10 @@ public class RestDispatcher: IRestDispatcher
     {
         var httpClient = GetClient(endpoint);
         
-        var jsonContent = JsonSerializer.Serialize(command, command.GetType());
-        var content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
+        var commandData = JsonSerializer.Serialize(command, command.GetType());
+        var cqrsMessageWrap = new CqrsMessage(command.Type, commandData);
         
-        var response = await httpClient.PostAsync("RestCommand", content);
+        var response = await httpClient.PostAsJsonAsync("RestCommand", cqrsMessageWrap);
         response.EnsureSuccessStatusCode();
     }
 

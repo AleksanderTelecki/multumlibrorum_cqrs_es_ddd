@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Product.Messages.Commands
 {
-    public class UpdateBookPriceCommand: Command
+    public class UpdateBookPriceCommand: ICommand
     {
         public Guid Id { get; set; }
         public decimal Price { get; set; }

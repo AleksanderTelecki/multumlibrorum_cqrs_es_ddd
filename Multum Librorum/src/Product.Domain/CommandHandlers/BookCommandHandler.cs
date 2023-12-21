@@ -106,7 +106,7 @@ namespace Product.Domain.CommandHandlers
 
         public async Task Handle(InitializeBookOrderCommand command, CancellationToken cancellation)
         {
-            await _lock.WaitAsync(cancellation);
+            /*await _lock.WaitAsync(cancellation);
             try
             {
                 List<Book> books = new();
@@ -127,7 +127,7 @@ namespace Product.Domain.CommandHandlers
             finally
             {
                 _lock.Release();
-            }
+            }*/
         }
     }
 }

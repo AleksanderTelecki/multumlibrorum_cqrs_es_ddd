@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Client.Messages.Commands
 {
-    public class UpdateProfileInfoCommand: Command
+    public class UpdateProfileInfoCommand: ICommand
     {
         public Guid Id { get; set; }
         public string Name { get; set; }

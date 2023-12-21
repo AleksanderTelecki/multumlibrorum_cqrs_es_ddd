@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Employee.Messages.Commands
 {
-    public class ChangeEmployeeRoleCommand: Command
+    public class ChangeEmployeeRoleCommand: ICommand
     {
         public Guid Id { get; set; }
         public EmployeeRole NewRole { get; set; }

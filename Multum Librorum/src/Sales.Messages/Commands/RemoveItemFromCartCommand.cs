@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Sales.Messages.Commands
 {
-    public class RemoveItemFromCartCommand: Command
+    public class RemoveItemFromCartCommand: ICommand
     {
         public Guid Id { get; set; }
         public Guid ProductId { get; set; }

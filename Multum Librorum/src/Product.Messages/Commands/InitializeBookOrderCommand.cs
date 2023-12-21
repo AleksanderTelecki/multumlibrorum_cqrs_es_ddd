@@ -2,7 +2,7 @@
 
 namespace Product.Messages.Commands;
 
-public class InitializeBookOrderCommand: Command
+public class InitializeBookOrderCommand: ICommand
 {
     public List<(Guid productId, int quantity)> ProductsWithQuantity { get; set; }
 }

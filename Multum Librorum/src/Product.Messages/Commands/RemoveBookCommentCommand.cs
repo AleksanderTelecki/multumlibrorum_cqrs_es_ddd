@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Product.Messages.Commands
 {
-    public class RemoveBookCommentCommand: Command
+    public class RemoveBookCommentCommand: ICommand
     {
         public Guid Id { get; set; }
         public Comment Comment { get; set; }

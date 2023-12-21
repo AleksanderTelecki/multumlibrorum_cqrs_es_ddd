@@ -28,7 +28,7 @@ var kafkaConsumerConf = builder.Configuration.GetSection(nameof(KafkaConsumerOpt
 var kafkaBootstrapServer = builder.Configuration.GetConnectionString("KafkaBootstrapServer")!;
 
 // Configurations
-builder.Services.AddDbContext<ClientDomainDataContext>(o => o.UseLazyLoadingProxies().UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
+builder.Services.AddDbContext<ClientDomainDataContext>(o => o.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
 builder.Services.Configure<KafkaConsumerOptions>(builder.Configuration.GetSection(nameof(KafkaConsumerOptions)));
 builder.Services.Configure<KafkaProducerOptions>(builder.Configuration.GetSection(nameof(KafkaProducerOptions)));
 
