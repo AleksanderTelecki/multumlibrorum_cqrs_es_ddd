@@ -25,6 +25,6 @@ public class OrderEntity
     {
         Id = Guid.NewGuid();
         ClientId = cartEntity.ClientId;
-        State = OrderState.OrderCreated;
+        State = OrderState.Created;
     }
 }

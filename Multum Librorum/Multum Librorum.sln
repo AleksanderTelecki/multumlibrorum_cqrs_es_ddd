@@ -107,6 +107,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Employee.Messages", "src\Em
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRS.Communication", "CQRS.Communication\CQRS.Communication.csproj", "{CC8AACF0-3E8A-470A-A891-A7A8483E12A1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebCoreApp", "src\WebCoreApp\WebCoreApp.csproj", "{8FA4B0F0-D5CC-414A-B582-0CE61175C132}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -253,6 +255,10 @@ Global
 		{CC8AACF0-3E8A-470A-A891-A7A8483E12A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC8AACF0-3E8A-470A-A891-A7A8483E12A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC8AACF0-3E8A-470A-A891-A7A8483E12A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8FA4B0F0-D5CC-414A-B582-0CE61175C132}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FA4B0F0-D5CC-414A-B582-0CE61175C132}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FA4B0F0-D5CC-414A-B582-0CE61175C132}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FA4B0F0-D5CC-414A-B582-0CE61175C132}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -308,6 +314,7 @@ Global
 		{4B0FFF1D-DC26-406C-B2DA-CC4A8440BEAD} = {A8297633-2D31-45AE-A464-75B2E5B35A87}
 		{E71B658A-33C9-4D9E-84A8-3A4234FC1468} = {A8297633-2D31-45AE-A464-75B2E5B35A87}
 		{CC8AACF0-3E8A-470A-A891-A7A8483E12A1} = {295E427F-F246-4638-ABD0-972378059D0D}
+		{8FA4B0F0-D5CC-414A-B582-0CE61175C132} = {295E427F-F246-4638-ABD0-972378059D0D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {69BBB6FA-729E-4CEA-94EB-C556B5359791}

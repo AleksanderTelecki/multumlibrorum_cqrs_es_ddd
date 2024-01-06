@@ -7,15 +7,14 @@ namespace Sales.Domain.Aggregates;
 
 public class Order: AggregateRoot
 {
-    public Guid ClientId { get; set; }
-    public List<OrderItem> Items { get; set; }
-    
-    public OrderState State { get; set; }
+    public Guid ClientId { get; protected set; }
+    public List<OrderItem> Items { get; protected set; }
+    public OrderState State { get; protected set; }
 
     public Order(Guid clientId)
     {
         Id = Guid.NewGuid();
-
+        
         RaiseEvent(new OrderCreatedEvent
         {
             Id = Id,
@@ -26,6 +25,37 @@ public class Order: AggregateRoot
     public Order()
     {
         
+    }
+    
+    public void AddProductsToOrder(ICollection<OrderItem> orderItems)
+    {
+        RaiseEvent(new OrderProductsAddedEvent()
+        {
+            Id = Id,
+            OrderItems = orderItems
+        });
+    }
+
+    public void MarkAsPlaced()
+    {
+        RaiseEvent(new OrderPlacedEvent()
+        {
+            Id = Id,
+        }); 
+    }
+    
+    public void Apply(OrderPlacedEvent @event)
+    {
+        State = OrderState.Placed;
+
+        Version++;
+    }
+    
+    public void Apply(OrderProductsAddedEvent @event)
+    {
+        Items = @event.OrderItems.ToList();
+
+        Version++;
     }
     
     public void Apply(OrderCreatedEvent @event)
@@ -48,7 +78,6 @@ public class Order: AggregateRoot
     
     public void Apply(OrderStateUpdatedEvent @event)
     {
-        Id = @event.Id;
         State = @event.NewOrderState;
 
         Version++;

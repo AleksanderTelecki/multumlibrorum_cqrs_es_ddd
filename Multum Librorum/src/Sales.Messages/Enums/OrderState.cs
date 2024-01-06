@@ -2,6 +2,7 @@
 
 public enum OrderState
 {
-    OrderCreated,
-    OrderRealized
+    Created,
+    Placed,
+    Realized
 }

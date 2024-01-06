@@ -1,0 +1,159 @@
+﻿@page "/"
+
+
+<MudPaper Elevation="3" Class="mx-2">
+        <MudTable Height="calc(100vh - 185px)" Hover="true" FixedFooter="true" FixedHeader="true" Items="books" Filter="new Func<Book, bool>(FilterFunc)">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">Our Books</MudText>
+                <MudSpacer />
+                <MudTextField @bind-Value="searchTerm" Placeholder="Search books" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"></MudTextField>
+            </ToolBarContent>
+            <ColGroup>
+                    <col style="width: 10%;" />
+                    <col style="width: 10%;" />
+                    <col style="width: 10%;" />
+                    <col  />
+            </ColGroup>
+            <HeaderContent>
+                <MudTh>Title</MudTh>
+                <MudTh>Author</MudTh>
+                <MudTh>Price</MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Title">@context.Title</MudTd>
+                <MudTd DataLabel="Author">@context.Author</MudTd>
+                <MudTd DataLabel="Price">@context.Price</MudTd>
+                <MudTd Style="text-align:right">
+                    <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => GoToBookDetails(context.Title))">Buy</MudButton>
+                    <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => GoToBookDetails(context.Title))">Details</MudButton>
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    </MudPaper>
+
+@code {
+    private string searchTerm;
+    private IEnumerable<Book> books;
+
+    private bool FilterFunc(Book book)
+    {
+        return true;/* Filtering logic here */ 
+    }
+    
+    protected override void OnInitialized()
+    {
+        books = GetAllBooks();
+    }
+    // Dummy data - replace with your data source
+    private IEnumerable<Book> GetAllBooks()
+    {
+        return new List<Book>
+        {
+            new Book { Title = "The Great Gatsby", Author = "F. Scott Fitzgerald", Price = "$10.99", ImageUrl = "path/to/1.jpg" },
+            new Book { Title = "The Great Gatsby 1984 The Great Gatsby The Great Gatsby", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
+            // Add more books here
+        };
+    }
+
+    private void SearchBooks()
+    {
+        // Implement your search logic here
+        books = GetAllBooks().Where(book => book.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public class Book
+    {
+        public string Title { get; set; }
+        public string Author { get; set; }
+        public string Price { get; set; }
+
+        public string ImageUrl { get; set; }
+        // Add other properties as needed
+    }
+
+    private Task GoToBookDetails(string bookTitle)
+    {
+        return Task.CompletedTask;
+    }
+
+    private Task PurchaseBook(string bookTitle)
+    {
+        return Task.CompletedTask;
+    }
+
+}

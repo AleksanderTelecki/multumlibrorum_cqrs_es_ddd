@@ -5,6 +5,7 @@ using Marte.EventSourcing.Core.Abstract;
 using Product.Messages.Commands;
 using Sales.Domain.Aggregates;
 using Sales.Messages.Commands;
+using Sales.Messages.Models;
 
 namespace Sales.Domain.CommandHandlers;
 
@@ -14,7 +15,7 @@ public class OrderCommandHandler:
     private readonly IAggregateRepository _aggregateRepository;
     private readonly IRestDispatcher _restDispatcher;
 
-    private readonly object _lockObj = new object();
+    private readonly object _lockObject = new object();
     
     public OrderCommandHandler(IAggregateRepository aggregateRepository, IRestDispatcher restDispatcher)
     {
@@ -25,10 +26,22 @@ public class OrderCommandHandler:
 
     public async Task Handle(CreateOrderCommand command, CancellationToken cancellation)
     {
-        var cart = await _aggregateRepository.LoadAsync<Cart>(command.CartId);
-        
-        await _restDispatcher.DispatchCommand(
-            new InitializeBookOrderCommand { ProductsWithQuantity = cart.Items.ToDictionary(x => x.ProductId, y => y.Quantity)}, EndpointEnum.ProductEndpoint);
-        
+        lock (_lockObject)
+        {
+            var cart = _aggregateRepository.LoadAsync<Cart>(command.CartId).GetAwaiter().GetResult();
+
+            _restDispatcher.DispatchCommand(
+                new InitializeBookOrderCommand
+                    { ProductsWithQuantity = cart.Items.ToDictionary(x => x.ProductId, y => y.Quantity) },
+                EndpointEnum.ProductEndpoint).GetAwaiter().GetResult();
+
+            var order = new Order(cart.ClientId);
+            var orderedProducts = cart.Items.Select(x => new OrderItem(Guid.NewGuid(), x.ProductId, x.Quantity));
+            
+            order.AddProductsToOrder(orderedProducts.ToList());
+            order.MarkAsPlaced();
+
+            _aggregateRepository.StoreAsync(order).GetAwaiter().GetResult();
+        }
     }
 }
