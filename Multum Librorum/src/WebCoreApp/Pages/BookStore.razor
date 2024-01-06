@@ -1,4 +1,7 @@
 ﻿@page "/"
+@using CQRS.Communication.Abstract
+@using Client.Messages.Queries
+@using CQRS.Communication.Enums
 
 
 <MudPaper Elevation="3" Class="mx-2">
@@ -35,6 +38,8 @@
         </MudTable>
     </MudPaper>
 
+@inject IRestDispatcher restDispatcher
+
 @code {
     private string searchTerm;
     private IEnumerable<Book> books;
@@ -48,6 +53,13 @@
     {
         books = GetAllBooks();
     }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        var x = await restDispatcher.DispatchQuery(new GetClientByEmailQuery { Email = "example6@email.com"}, EndpointEnum.ClientEndpoint);
+        StateHasChanged();
+    }
+    
     // Dummy data - replace with your data source
     private IEnumerable<Book> GetAllBooks()
     {

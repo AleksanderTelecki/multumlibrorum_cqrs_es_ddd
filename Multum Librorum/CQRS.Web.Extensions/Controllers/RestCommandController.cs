@@ -6,7 +6,7 @@ using CQRS.Core.Commands;
 using CQRS.Core.Commands.Abstract;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CQRS.Communication.Controllers;
+namespace CQRS.Web.Extensions.Controllers;
 
 [ApiController]
 [Route("[controller]")]

@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\CQRS.Communication\CQRS.Communication.csproj" />
     <ProjectReference Include="..\..\CQRS.Core\CQRS.Core.csproj" />
+    <ProjectReference Include="..\..\CQRS.Web.Extensions\CQRS.Web.Extensions.csproj" />
     <ProjectReference Include="..\..\Kafka.Core\Kafka.Core.csproj" />
     <ProjectReference Include="..\..\Marte.EventSourcing.Core\Marte.EventSourcing.Core.csproj" />
     <ProjectReference Include="..\Product.Domain\Product.Domain.csproj" />

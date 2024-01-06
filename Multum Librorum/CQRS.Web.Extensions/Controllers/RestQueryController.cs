@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace CQRS.Communication.Controllers;
+namespace CQRS.Web.Extensions.Controllers;
 
 // TODO: Refactor
 

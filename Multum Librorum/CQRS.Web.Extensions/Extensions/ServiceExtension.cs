@@ -1,13 +1,13 @@
 ﻿using CQRS.Communication.Abstract;
-using CQRS.Communication.Controllers;
 using CQRS.Communication.Options;
 using CQRS.Communication.Services;
+using CQRS.Web.Extensions.Controllers;
 
-namespace CQRS.Communication.Extensions;
+namespace CQRS.Web.Extensions;
 
 public static class ServiceExtensions
 {
-    public static IServiceCollection AddRestQueryController(this IServiceCollection services,
+    public static IServiceCollection AddRestController(this IServiceCollection services,
         ConfigurationManager builderConfiguration)
     {
         services.Configure<RestDispatcherOptions>(builderConfiguration.GetSection(nameof(RestDispatcherOptions)));

@@ -1,4 +1,3 @@
-using CQRS.Communication.Extensions;
 using Kafka.Core.Options;
 using Kafka.Core.Services.Consumer;
 using Kafka.Core.Extensions;
@@ -16,6 +15,7 @@ using Kafka.Core.Abstract;
 using Kafka.Core.Services.Producer;
 using Product.Domain.Repository;
 using CQRS.Core.Extensions;
+using CQRS.Web.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -96,7 +96,7 @@ builder.Services.AddKafka(
 builder.Services.AddHostedService<KafkaConsumerHostedService>();
 
 builder.Services.AddControllers();
-builder.Services.AddRestQueryController(builder.Configuration);
+builder.Services.AddRestController(builder.Configuration);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
