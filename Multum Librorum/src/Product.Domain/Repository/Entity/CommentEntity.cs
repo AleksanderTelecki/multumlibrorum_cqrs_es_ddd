@@ -1,10 +1,5 @@
 ﻿using Product.Messages.Events.Models;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Product.Domain.Repository.Entity
 {
@@ -15,6 +10,8 @@ namespace Product.Domain.Repository.Entity
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
         public string CommentText { get; set; }
+        
+        public string UserName { get; set; }
         public DateTime RegDate { get; set; }
 
         [Column("BookId")]
@@ -32,6 +29,7 @@ namespace Product.Domain.Repository.Entity
         {
             Id = comment.Id;
             UserId = comment.UserId;
+            UserName = comment.UserName;
             CommentText = comment.CommentText;
             RegDate = comment.RegDate;
         }

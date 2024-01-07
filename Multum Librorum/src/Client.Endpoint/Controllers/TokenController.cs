@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using Client.Messages.Models;
 using Client.Messages.Queries;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Client.Endpoint.Controllers
 {
@@ -29,7 +30,7 @@ namespace Client.Endpoint.Controllers
             {
                 var user = await _queryDispatcher.Dispatch(new GetClientByEmailQuery { Email = userCredentials.Email });
 
-                if (user != null)
+                if (user != null && user.Password == userCredentials.Password)
                 {
                     var claims = new[] {
                         new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
@@ -49,7 +50,15 @@ namespace Client.Endpoint.Controllers
                         expires: DateTime.UtcNow.AddMinutes(10),
                         signingCredentials: signIn);
 
-                    return Ok(new JwtSecurityTokenHandler().WriteToken(token));
+                    var tokenWithUserInfo = new TokenWithUserInfo()
+                    {
+                        Token = new JwtSecurityTokenHandler().WriteToken(token),
+                        UserEmail = user.Email,
+                        UserName = user.Name,
+                        UserId = user.Id
+                    };
+                    
+                    return Ok(tokenWithUserInfo);
                 }
                 else
                 {
@@ -60,6 +69,13 @@ namespace Client.Endpoint.Controllers
             {
                 return BadRequest();
             }
+        }
+        
+        [Authorize]
+        [HttpGet("Check")]
+        public IActionResult CheckToken()
+        {
+            return Ok();
         }
 
     }

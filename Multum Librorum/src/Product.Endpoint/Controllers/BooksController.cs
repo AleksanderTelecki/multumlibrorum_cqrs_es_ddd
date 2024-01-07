@@ -56,5 +56,12 @@ namespace Product.Endpoint.Controllers
             await _commandDispatcher.Dispatch(command);
             return StatusCode(StatusCodes.Status200OK);
         }
+        
+        [HttpPost("AddComment")]
+        public async Task<IActionResult> UnHideBookAsync(AddCommentToBookCommand command)
+        {
+            await _commandDispatcher.Dispatch(command);
+            return StatusCode(StatusCodes.Status200OK);
+        }
     }
 }

@@ -42,7 +42,11 @@ namespace Product.Domain.Repository
 
         public async Task<List<BookEntity>> GetAllBooks()
         {
-            return await _productDomainDataContext.Books.AsNoTracking().ToListAsync();
+            return await _productDomainDataContext
+                .Books
+                .Include(x => x.Comments)
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task<List<BookEntity>> GetAllBooksWithTrack()

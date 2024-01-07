@@ -1,4 +1,7 @@
-﻿@inherits LayoutComponentBase
+﻿@using Client.Messages.Models
+@using WebCoreApp.Abstract
+@using WebCoreApp.Services
+@inherits LayoutComponentBase
 
 <MudThemeProvider/>
 <MudDialogProvider/>
@@ -17,19 +20,59 @@
             </MudGrid>
         </MudLink>
         <NavMenu/>
-        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End"/>
+        @if (_tokenWithUserInfo == null)
+        {
+            <MudButton Color="Color.Secondary" Variant="Variant.Filled" Link="/login">Login</MudButton>
+        }
+        else
+        {
+            <MudMenu>
+                <ActivatorContent>
+                   <MudAvatar Color="Color.Secondary">@_tokenWithUserInfo.UserName.ToUpper()[0]</MudAvatar>
+                </ActivatorContent>
+                <ChildContent>
+                    <MudMenuItem Link="/profile">Profile</MudMenuItem>
+                    <MudMenuItem OnClick="@(()=>Logout())">Sign Out</MudMenuItem>
+                </ChildContent>
+            </MudMenu>
+        }
+        
     </MudAppBar>
     <MudMainContent>
         @Body
     </MudMainContent>
 </MudLayout>
 
-@code {
-    bool _drawerOpen = true;
+@inject ILoginService LoginService
+@inject ErrorHandlerService ErrorHandlerService
+@inject ISnackbar Snackbar
 
-    void DrawerToggle()
+@code {
+    TokenWithUserInfo _tokenWithUserInfo;
+
+    protected override async Task OnInitializedAsync()
     {
-        _drawerOpen = !_drawerOpen;
+        ErrorHandlerService.OnError += ShowSnackbar;
+        _tokenWithUserInfo = await LoginService.IsUserLogin();
+        StateHasChanged();
+    }
+
+    public async Task Logout()
+    {
+        await LoginService.Logout();
+        _tokenWithUserInfo = null;
+        
+        StateHasChanged();
+    }
+    
+    private void ShowSnackbar(string message)
+    {
+        Snackbar.Add(message, Severity.Error);
+    }
+
+    public void Dispose()
+    {
+        ErrorHandlerService.OnError -= ShowSnackbar;
     }
 
 }

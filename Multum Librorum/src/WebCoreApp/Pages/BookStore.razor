@@ -2,34 +2,46 @@
 @using CQRS.Communication.Abstract
 @using Client.Messages.Queries
 @using CQRS.Communication.Enums
+@using Product.Messages.Events.Models
+@using Product.Messages.Queries
+@using WebCoreApp.Pages.Dialogs
 
 
 <MudPaper Elevation="3" Class="mx-2">
-        <MudTable Height="calc(100vh - 185px)" Hover="true" FixedFooter="true" FixedHeader="true" Items="books" Filter="new Func<Book, bool>(FilterFunc)">
+        <MudTable Loading="books == null" RowsPerPage="50" Height="calc(100vh - 185px)" Hover="true" FixedFooter="true" FixedHeader="true" Items="@books" Filter="new Func<BookModel, bool>(FilterFunc1)">
             <ToolBarContent>
                 <MudText Typo="Typo.h6">Our Books</MudText>
                 <MudSpacer />
-                <MudTextField @bind-Value="searchTerm" Placeholder="Search books" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"></MudTextField>
+                <MudTextField @bind-Value="searchString1" Placeholder="Search books" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"></MudTextField>
             </ToolBarContent>
             <ColGroup>
+                    <col style="width: 10%;" />
+                    <col style="width: 10%;" />
+                    <col style="width: 10%;" />
                     <col style="width: 10%;" />
                     <col style="width: 10%;" />
                     <col style="width: 10%;" />
                     <col  />
             </ColGroup>
             <HeaderContent>
-                <MudTh>Title</MudTh>
-                <MudTh>Author</MudTh>
-                <MudTh>Price</MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.Title)">Title</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.Author)">Author</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.Price)">Price</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.PromotedPrice)">Promoted Price</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.PageCount)">Page Count</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.Quantity)">Quantity</MudTableSortLabel></MudTh>
                 <MudTh></MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd DataLabel="Title">@context.Title</MudTd>
                 <MudTd DataLabel="Author">@context.Author</MudTd>
-                <MudTd DataLabel="Price">@context.Price</MudTd>
-                <MudTd Style="text-align:right">
-                    <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => GoToBookDetails(context.Title))">Buy</MudButton>
-                    <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => GoToBookDetails(context.Title))">Details</MudButton>
+                <MudTd DataLabel="Price"  >$ @context.Price</MudTd>
+                <MudTd DataLabel="Promoted Price" Style="color: green;" >@(context.PromotedPrice != null ? $"$ {context.PromotedPrice}" : "")</MudTd>
+                <MudTd DataLabel="Page Count"> @context.PageCount </MudTd>
+                <MudTd DataLabel="Quantity"> @context.Quantity </MudTd>
+                <MudTd Style="text-align:center">
+                    <MudButton Variant="Variant.Outlined" OnClick="@((e) => OpenDialog(context))" Size="Size.Small">Details</MudButton>
+                    <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => GoToBookDetails(context.Title))">Add To Cart</MudButton>
                 </MudTd>
             </RowTemplate>
             <PagerContent>
@@ -39,133 +51,45 @@
     </MudPaper>
 
 @inject IRestDispatcher restDispatcher
-
+@inject IDialogService Dialog
 @code {
     private string searchTerm;
-    private IEnumerable<Book> books;
+    private IEnumerable<BookModel> books;
+    private string searchString1 = "";
 
-    private bool FilterFunc(Book book)
+    private void OpenDialog(BookModel bookModel)
     {
-        return true;/* Filtering logic here */ 
-    }
-    
-    protected override void OnInitialized()
-    {
-        books = GetAllBooks();
+        var parameters = new DialogParameters();
+        parameters.Add("Book", bookModel);
+
+        var options = new DialogOptions() { FullWidth = true, CloseButton = true };
+        Dialog.Show<BookDetailsDialog>("Book details dialog", parameters, options);
     }
     
     protected override async Task OnInitializedAsync()
     {
-        var x = await restDispatcher.DispatchQuery(new GetClientByEmailQuery { Email = "example6@email.com"}, EndpointEnum.ClientEndpoint);
+        books = await restDispatcher.DispatchQuery(new GetAllBooksQuery(), EndpointEnum.ProductEndpoint);
         StateHasChanged();
-    }
-    
-    // Dummy data - replace with your data source
-    private IEnumerable<Book> GetAllBooks()
-    {
-        return new List<Book>
-        {
-            new Book { Title = "The Great Gatsby", Author = "F. Scott Fitzgerald", Price = "$10.99", ImageUrl = "path/to/1.jpg" },
-            new Book { Title = "The Great Gatsby 1984 The Great Gatsby The Great Gatsby", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            new Book { Title = "1984", Author = "George Orwell", Price = "$9.99", ImageUrl = "path/to/2.jpg" },
-            // Add more books here
-        };
-    }
-
-    private void SearchBooks()
-    {
-        // Implement your search logic here
-        books = GetAllBooks().Where(book => book.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
-    }
-
-    public class Book
-    {
-        public string Title { get; set; }
-        public string Author { get; set; }
-        public string Price { get; set; }
-
-        public string ImageUrl { get; set; }
-        // Add other properties as needed
     }
 
     private Task GoToBookDetails(string bookTitle)
     {
         return Task.CompletedTask;
     }
+    
+    private bool FilterFunc1(BookModel bookModel) => FilterFunc(bookModel, searchString1);
 
-    private Task PurchaseBook(string bookTitle)
+    private bool FilterFunc(BookModel bookModel, string searchString)
     {
-        return Task.CompletedTask;
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (bookModel.Title.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (bookModel.Author.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if ($"{bookModel.Author} {bookModel.Title} {bookModel.Description}".Contains(searchString))
+            return true;
+        return false;
     }
 
 }

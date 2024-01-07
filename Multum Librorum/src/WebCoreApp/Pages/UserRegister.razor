@@ -1,0 +1,140 @@
+﻿@page "/register"
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using Client.Messages.Commands
+@using CQRS.Communication.Abstract
+@using CQRS.Communication.Enums
+@using WebCoreApp.Abstract
+@using WebCoreApp.Services
+
+<MudContainer Class="my-12 py-12">
+<MudGrid>
+    <MudItem xs="12" sm="7">
+        <MudPaper Class="pa-4">
+            <MudForm Model="@_registerUserCommand" @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+                <MudTextField @bind-Value="_registerUserCommand.Name" Immediate="true" For="@(() => _registerUserCommand.Name)" T="string" Label="Name" Required="true" RequiredError="User name is required!" />
+                <MudTextField @bind-Value="_registerUserCommand.Surname" Immediate="true" For="@(() => _registerUserCommand.Surname)" T="string" Label="Surname" Required="true" RequiredError="User surname is required!" />
+                <MudTextField @bind-Value="_registerUserCommand.Email" Immediate="true" For="@(() => _registerUserCommand.Email)" T="string" Label="Email" Required="true" RequiredError="Email is required!"
+                              Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})" />
+                <MudDatePicker @bind-Date="dateOfbirth" Required="true" MaxDate="DateTime.Now" For="@(() => dateOfbirth)" Label="Birth Date" />
+                <MudTextField
+                    @bind-Value="_registerUserCommand.Street"
+                    T="string"
+                    For="@(() => _registerUserCommand.Street)"
+                    Immediate="true"
+                    Label="Street"/>
+                <MudTextField
+                    @bind-Value="_registerUserCommand.City"
+                    T="string"
+                    For="@(() => _registerUserCommand.City)"
+                    Immediate="true"
+                    Label="City"/>
+                <MudTextField
+                    @bind-Value="_registerUserCommand.Region"
+                    T="string"
+                    For="@(() => _registerUserCommand.Region)"
+                    Immediate="true"
+                    Label="Region"/>
+                <MudTextField
+                    @bind-Value="_registerUserCommand.Country"
+                    T="string"
+                    For="@(() => _registerUserCommand.Country)"
+                    Immediate="true"
+                    Label="Country"/>
+                <MudTextField
+                    T="string"
+                    @bind-Value="_registerUserCommand.PostalCode"
+                    For="@(() => _registerUserCommand.PostalCode)"
+                    Immediate="true"
+                    Label="PostalCode"/>
+                <MudTextField
+                    T="string"
+                    @bind-Value="_registerUserCommand.Phone"
+                    For="@(() => _registerUserCommand.Phone)"
+                    Immediate="true"
+                    Label="Phone Number"/>
+                <MudTextField T="string" Label="Password" HelperText="Choose a strong password" @ref="pwField1"
+                              InputType="InputType.Password"
+                              Immediate="true"
+                              Validation="@(new Func<string, IEnumerable<string>>(PasswordStrength))" Required="true"
+                              RequiredError="Password is required!"/>
+                <MudTextField @bind-Value="_registerUserCommand.Password" For="@(() => _registerUserCommand.Password)" T="string"
+                              Immediate="true"
+                              Label="Password" HelperText="Repeat the password" InputType="InputType.Password"
+                              Validation="@(new Func<string, string>(PasswordMatch))"/>
+            </MudForm>   
+        </MudPaper>
+        <MudPaper Class="pa-4 mt-4">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="!form.IsValid" DisableElevation="true" OnClick="@(()=>Register())">Register</MudButton>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="5">
+        <MudPaper Class="pa-4 mud-height-full">
+            <MudText Typo="Typo.subtitle2">@($"Errors ({errors.Length})")</MudText>
+            @foreach (var error in errors)
+            {
+                <MudText Color="@Color.Error">@error</MudText>
+            }
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+</MudContainer>
+
+@inject IRestDispatcher RestDispatcher
+@inject ErrorHandlerService ErrorHandlerService
+@inject ILoginService LoginService
+@inject NavigationManager NavigationManager
+@code {
+    RegisterUserCommand _registerUserCommand = new RegisterUserCommand();
+    bool success;
+    string[] errors = { };
+    MudTextField<string> pwField1;
+    MudForm form;
+    DateTime? dateOfbirth;
+
+
+    private async Task Register()
+    {
+        try
+        {
+            _registerUserCommand.DateOfBirth = dateOfbirth.Value;
+            await RestDispatcher.DispatchCommand(_registerUserCommand, EndpointEnum.ClientEndpoint);
+
+            if (await LoginService.Login(_registerUserCommand.Email, _registerUserCommand.Password))
+            {
+                StateHasChanged();
+                NavigationManager.NavigateTo($"/", true); 
+            }
+        }
+        catch (Exception e)
+        {
+            ErrorHandlerService.ShowError("Registration failed!");
+            Console.WriteLine(e);
+        }
+    }
+    
+    private IEnumerable<string> PasswordStrength(string pw)
+    {
+        if (string.IsNullOrWhiteSpace(pw))
+        {
+            yield return "Password is required!";
+            yield break;
+        }
+        if (pw.Length < 8)
+            yield return "Password must be at least of length 8";
+        if (!Regex.IsMatch(pw, @"[A-Z]"))
+            yield return "Password must contain at least one capital letter";
+        if (!Regex.IsMatch(pw, @"[a-z]"))
+            yield return "Password must contain at least one lowercase letter";
+        if (!Regex.IsMatch(pw, @"[0-9]"))
+            yield return "Password must contain at least one digit";
+    }
+
+    private string PasswordMatch(string arg)
+    {
+        if (pwField1.Value != arg)
+            return "Passwords don't match";
+        return null;
+    }
+
+}

@@ -1,0 +1,190 @@
+﻿@page "/profile"
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using Client.Messages.Commands
+@using Client.Messages.Models
+@using Client.Messages.Queries
+@using CQRS.Communication.Abstract
+@using CQRS.Communication.Enums
+@using WebCoreApp.Abstract
+@using WebCoreApp.Services
+
+<MudContainer Class="my-12 py-12">
+<MudGrid>
+    <MudItem xs="12" sm="7">
+        <MudPaper Class="pa-4">
+            <MudForm Model="@_userData" @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+                <MudTextField @bind-Value="_userData.Name" Immediate="true" For="@(() => _userData.Name)" T="string" Label="Name" Required="true" RequiredError="User name is required!" />
+                <MudTextField @bind-Value="_userData.Surname" Immediate="true" For="@(() => _userData.Surname)" T="string" Label="Surname" Required="true" RequiredError="User surname is required!" />
+                <MudTextField @bind-Value="_tokenWithUserInfo.UserEmail" Disabled="true" T="string" Label="Email" />
+                <MudDatePicker @bind-Date="dateOfbirth" Required="true" MaxDate="DateTime.Now" For="@(() => dateOfbirth)" Label="Birth Date" />
+                <MudTextField
+                    @bind-Value="_userData.Street"
+                    T="string"
+                    For="@(() => _userData.Street)"
+                    Immediate="true"
+                    Label="Street"/>
+                <MudTextField
+                    @bind-Value="_userData.City"
+                    T="string"
+                    For="@(() => _userData.City)"
+                    Immediate="true"
+                    Label="City"/>
+                <MudTextField
+                    @bind-Value="_userData.Region"
+                    T="string"
+                    For="@(() => _userData.Region)"
+                    Immediate="true"
+                    Label="Region"/>
+                <MudTextField
+                    @bind-Value="_userData.Country"
+                    T="string"
+                    For="@(() => _userData.Country)"
+                    Immediate="true"
+                    Label="Country"/>
+                <MudTextField
+                    T="string"
+                    @bind-Value="_userData.PostalCode"
+                    For="@(() => _userData.PostalCode)"
+                    Immediate="true"
+                    Label="PostalCode"/>
+                <MudTextField
+                    T="string"
+                    @bind-Value="_userData.Phone"
+                    For="@(() => _userData.Phone)"
+                    Immediate="true"
+                    Label="Phone Number"/>
+            </MudForm> 
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="!form.IsValid" DisableElevation="true" OnClick="@(()=>ChangePersonData())">Change Personal Data</MudButton>
+        </MudPaper>
+        <MudPaper Class="pa-4 mt-4">
+            <MudForm @ref="form1" @bind-IsValid="@success1" @bind-Errors="@errors2">
+            <MudTextField T="string" Label="Password" HelperText="Choose a strong password" @ref="pwField1"
+                          InputType="InputType.Password"
+                          Immediate="true"
+                          Validation="@(new Func<string, IEnumerable<string>>(PasswordStrength))" Required="true"
+                          RequiredError="Password is required!"/>
+            <MudTextField @bind-Value="newPass" For="@(() => newPass)" T="string"
+                          Immediate="true"
+                          Label="Password" HelperText="Repeat the password" InputType="InputType.Password"
+                          Validation="@(new Func<string, string>(PasswordMatch))"/>
+            </MudForm>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="!form1.IsValid" DisableElevation="true" OnClick="@(() => ChangePassword())">Change Password</MudButton>
+        </MudPaper>
+    </MudItem>
+    
+    <MudItem xs="12" sm="5">
+        <MudPaper Class="pa-4 mud-height-full">
+            <MudText Typo="Typo.subtitle2">@($"Errors ({errors.Length+errors2.Length})")</MudText>
+            @foreach (var error in errors)
+            {
+                <MudText Color="@Color.Error">@error</MudText>
+            }
+            @foreach (var error in errors2)
+            {
+                <MudText Color="@Color.Error">@error</MudText>
+            }
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+</MudContainer>
+
+@inject IRestDispatcher RestDispatcher
+@inject ErrorHandlerService ErrorHandlerService
+@inject ILoginService LoginService
+@inject NavigationManager NavigationManager
+@code {
+    bool success;
+    bool success1;
+    string[] errors = { };
+    string[] errors2 = { };
+    MudTextField<string> pwField1;
+    MudForm form = new MudForm();
+    MudForm form1 = new MudForm();
+    DateTime? dateOfbirth;
+    private TokenWithUserInfo _tokenWithUserInfo = new TokenWithUserInfo();
+    private ClientDetails _userData = new ClientDetails();
+    private string newPass = "";
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        _tokenWithUserInfo = await LoginService.IsUserLogin();
+        _userData = await RestDispatcher.DispatchQuery(new GetClientDetailsQuery() { ClientId = _tokenWithUserInfo.UserId}, EndpointEnum.ClientEndpoint);
+        dateOfbirth = _userData.DateOfBirth;
+        
+        StateHasChanged();
+    }
+    
+    private IEnumerable<string> PasswordStrength(string pw)
+    {
+        if (string.IsNullOrWhiteSpace(pw))
+        {
+            yield return "Password is required!";
+            yield break;
+        }
+        if (pw.Length < 8)
+            yield return "Password must be at least of length 8";
+        if (!Regex.IsMatch(pw, @"[A-Z]"))
+            yield return "Password must contain at least one capital letter";
+        if (!Regex.IsMatch(pw, @"[a-z]"))
+            yield return "Password must contain at least one lowercase letter";
+        if (!Regex.IsMatch(pw, @"[0-9]"))
+            yield return "Password must contain at least one digit";
+    }
+
+    private string PasswordMatch(string arg)
+    {
+        if (pwField1.Value != arg)
+            return "Passwords don't match";
+        return null;
+    }
+
+    private async Task ChangePassword()
+    {
+        try
+        {
+            var command = new ChangeUserPasswordCommand()
+            {
+                Id = _tokenWithUserInfo.UserId,
+                NewPassword = newPass
+            };
+        
+            await RestDispatcher.DispatchCommand(command, EndpointEnum.ClientEndpoint);
+        }
+        catch (Exception e)
+        {
+            ErrorHandlerService.ShowError("Password update failed!");
+            Console.WriteLine(e);
+        }
+    }
+
+    private async Task ChangePersonData()
+    {
+        try
+        {
+            var command = new UpdateProfileInfoCommand()
+            {
+                Id = _tokenWithUserInfo.UserId,
+                Name = _userData.Name,
+                Surname = _userData.Surname,
+                DateOfBirth = dateOfbirth.Value,
+                PostalCode = _userData.PostalCode,
+                Street = _userData.Street,
+                City = _userData.City,
+                Region = _userData.Region,
+                Country = _userData.Country,
+                Phone = _userData.Phone
+            };
+        
+            await RestDispatcher.DispatchCommand(command, EndpointEnum.ClientEndpoint);
+            
+        }
+        catch (Exception e)
+        {
+            ErrorHandlerService.ShowError("Profile data update failed!");
+            Console.WriteLine(e);
+        }
+    }
+
+}

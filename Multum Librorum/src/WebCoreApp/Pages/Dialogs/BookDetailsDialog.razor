@@ -1,0 +1,114 @@
+﻿@using Product.Messages.Events.Models
+@using Client.Messages.Models
+@using CQRS.Communication.Abstract
+@using CQRS.Communication.Enums
+@using CQRS.Communication.Services
+@using Product.Messages.Commands
+@using WebCoreApp.Abstract
+@using WebCoreApp.Services
+
+<MudDialog Style="min-width: 100vh;">
+    <DialogContent>
+        <MudGrid Spacing="1">
+            <MudItem xs="5">
+                <MudGrid Spacing="1">
+                    <MudItem Style="height: 100%;" xs="12">
+                        <MudPaper Style="height: 100%;" Elevation="1" Class="py-5 px-5">
+                            <MudText>
+                                <b>Title:</b> @Book.Title
+                            </MudText>
+                            <MudText>
+                                <b>Author:</b> @Book.Author
+                            </MudText>
+                            <MudText>
+                                <b>Description:</b> @Book.Description
+                            </MudText>
+                            <MudText>
+                                <b>Price:</b> @Book.Price
+                            </MudText>
+                            <MudText>
+                                <b>Promoted Price:</b> @Book.PromotedPrice
+                            </MudText>
+                            <MudText>
+                                <b>Page Count:</b> @Book.PageCount
+                            </MudText>
+                            <MudText>
+                                <b>Qty:</b> @Book.Quantity
+                            </MudText>
+                            <MudText>
+                                <b>RegDate:</b> @Book.RegDate
+                            </MudText>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem xs="7">
+                <MudPaper Elevation="1" Style="height: 100%;" Class="py-2 px-2">
+                    <MudText Typo="Typo.h6">Comments</MudText>
+                    <MudPaper Elevation="2" Class="py-2 px-2" Style="height: 400px; overflow-y: auto;">
+
+                        @foreach (var comment in  Book.Comments) // Assuming Book has a Comments property
+                        {
+                            <MudText>
+                                <b>@comment.UserName:</b> @comment.CommentText
+                            </MudText>
+                            <MudDivider Class="mt-2"/>
+                        }
+                    </MudPaper>
+                    <MudTextField Lines="3" Immediate="true" @bind-Value="newComment" Disabled="_tokenWithUserInfo == null" Label="Add your comment" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Send" OnAdornmentClick="SendComment"/>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+    </DialogActions>
+</MudDialog>
+
+@inject ILoginService LoginService
+@inject IRestDispatcher RestDispatcher
+@inject ErrorHandlerService ErrorHandlerService
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public BookModel Book { get; set; }
+    private TokenWithUserInfo _tokenWithUserInfo;
+    private string newComment;
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        _tokenWithUserInfo = await LoginService.IsUserLogin();
+        StateHasChanged();
+    }
+
+
+    private async Task SendComment()
+    {
+        try
+        {
+            var command = new AddCommentToBookCommand()
+            {
+                Id = Book.Id,
+                Comment = new Comment()
+                {
+                    Id = Guid.NewGuid(),
+                    CommentText = newComment,
+                    RegDate = DateTime.Now,
+                    UserId = _tokenWithUserInfo.UserId,
+                    UserName = _tokenWithUserInfo.UserName
+                }
+            };
+            
+            await RestDispatcher.DispatchCommand(command, EndpointEnum.ProductEndpoint);
+            
+            Book.Comments.Add(command.Comment);
+        }
+        catch (Exception e)
+        {
+            ErrorHandlerService.ShowError("Comment sent error!");
+            Console.WriteLine(e);
+        }
+        
+        newComment = string.Empty;
+        StateHasChanged();
+    }
+}
