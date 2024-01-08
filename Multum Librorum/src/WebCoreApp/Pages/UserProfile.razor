@@ -55,7 +55,7 @@
                     Immediate="true"
                     Label="Phone Number"/>
             </MudForm> 
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="!form.IsValid" DisableElevation="true" OnClick="@(()=>ChangePersonData())">Change Personal Data</MudButton>
+            <MudButton Class="mt-2" Variant="Variant.Filled" Color="Color.Primary" Disabled="!form.IsValid" DisableElevation="true" OnClick="@(()=>ChangePersonData())">Change Personal Data</MudButton>
         </MudPaper>
         <MudPaper Class="pa-4 mt-4">
             <MudForm @ref="form1" @bind-IsValid="@success1" @bind-Errors="@errors2">
@@ -69,7 +69,7 @@
                           Label="Password" HelperText="Repeat the password" InputType="InputType.Password"
                           Validation="@(new Func<string, string>(PasswordMatch))"/>
             </MudForm>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="!form1.IsValid" DisableElevation="true" OnClick="@(() => ChangePassword())">Change Password</MudButton>
+            <MudButton Class="mt-2" Variant="Variant.Filled" Color="Color.Primary" Disabled="!form1.IsValid" DisableElevation="true" OnClick="@(() => ChangePassword())">Change Password</MudButton>
         </MudPaper>
     </MudItem>
     
@@ -93,6 +93,7 @@
 @inject ErrorHandlerService ErrorHandlerService
 @inject ILoginService LoginService
 @inject NavigationManager NavigationManager
+@inject SuccessHandlerService SuccessHandlerService
 @code {
     bool success;
     bool success1;
@@ -151,6 +152,9 @@
             };
         
             await RestDispatcher.DispatchCommand(command, EndpointEnum.ClientEndpoint);
+            
+            SuccessHandlerService.ShowSuccess("Password Changed");
+            StateHasChanged();
         }
         catch (Exception e)
         {
@@ -179,6 +183,8 @@
         
             await RestDispatcher.DispatchCommand(command, EndpointEnum.ClientEndpoint);
             
+            SuccessHandlerService.ShowSuccess("Data Changed");
+            StateHasChanged();
         }
         catch (Exception e)
         {

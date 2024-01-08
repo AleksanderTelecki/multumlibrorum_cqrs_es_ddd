@@ -1,0 +1,131 @@
+﻿@page "/cart"
+@using Sales.Messages.Models
+@using CQRS.Communication.Abstract
+@using Sales.Messages.Queries
+@using WebCoreApp.Abstract
+@using Client.Messages.Models
+@using CQRS.Communication.Enums
+@using Sales.Messages.Commands
+@using WebCoreApp.Services
+
+<MudContainer Class="my-12 py-12">
+    <MudTable Items="@CartItems" Dense="true" Hover="true"  CanCancelEdit="true" MultiSelection="true" @bind-SelectedItems="selectedItems"
+              Filter="new Func<CartItemModel,bool>(FilterFunc)" @bind-SelectedItem="selectedCartItem" 
+              RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues" RowEditCommit="ItemHasBeenCommitted" >
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Shopping Cart Items</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy="new Func<CartItemModel, object>(x=>x.ProductName)">Product Name</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<CartItemModel, object>(x=>x.ProductPrice)">Price</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<CartItemModel, object>(x=>x.Quantity)">Quantity</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<CartItemModel, object>(x=>x.IsOnStock)">In Stock</MudTableSortLabel></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Product Name">@context.ProductName</MudTd>
+            <MudTd DataLabel="Price">@context.ProductPrice</MudTd>
+            <MudTd DataLabel="Quantity">@context.Quantity</MudTd>
+            <MudTd DataLabel="In Stock">@(context.IsOnStock ? "+" : "-")</MudTd>
+        </RowTemplate>
+        <RowEditingTemplate>
+            <MudTd DataLabel="Product Name">
+                @context.ProductName
+            </MudTd>
+            <MudTd DataLabel="Price">
+                @context.ProductPrice
+            </MudTd>
+            <MudTd DataLabel="Quantity">
+                <MudNumericField @bind-Value="@context.Quantity" Required Min="1" />
+            </MudTd>
+            <MudTd DataLabel="In Stock">
+                @(context.IsOnStock ? "+" : "-")
+            </MudTd>
+        </RowEditingTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+    <MudPaper Class="my-2 mx-3">
+        <MudIconButton Class="align-self-end" Elevation="6" Color="Color.Secondary" Disabled="!selectedItems.Any()" OnClick="@(() => DeleteFromCart())" Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>
+        <MudButton Class="align-self-end" Elevation="6" Variant="Variant.Filled" Color="Color.Primary" Disabled="!selectedItems.Any()" OnClick="@(() => OrderItemsFromCart())"> Create Order</MudButton>
+    </MudPaper>
+    
+    
+</MudContainer>
+
+@inject ILoginService LoginService
+@inject IRestDispatcher RestDispatcher
+@inject SuccessHandlerService SuccessHandlerService
+@code {
+    private List<CartItemModel> CartItems = new List<CartItemModel>();
+    private HashSet<CartItemModel> selectedItems = new HashSet<CartItemModel>();
+    private string searchString = "";
+    private Guid cartId;
+    private CartItemModel selectedCartItem = null;
+    private CartItemModel cartItemBeforeEdit;
+    private TokenWithUserInfo _tokenWithUserInfo;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _tokenWithUserInfo = await LoginService.IsUserLogin();
+        CartItems = await RestDispatcher.DispatchQuery(new GetClientCartQuery() { ClientId = _tokenWithUserInfo.UserId }, EndpointEnum.SalesEndpoint);
+        
+        if (_tokenWithUserInfo != null)
+        {
+            cartId = await RestDispatcher.DispatchQuery(new GetClientCartIdQuery() { ClientId = _tokenWithUserInfo.UserId }, EndpointEnum.SalesEndpoint);
+        }
+        
+        StateHasChanged();
+    }
+
+    private void BackupItem(object cartItem)
+    {
+        var item = (CartItemModel)cartItem;
+        cartItemBeforeEdit = new CartItemModel(item.Id, item.ProductId, item.ProductName, item.ProductPrice, item.Quantity, item.IsOnStock);
+        // Dodaj logikę obsługi zdarzeń
+    }
+
+    private void ItemHasBeenCommitted(object cartItem)
+    {
+        var item = (CartItemModel)cartItem;
+        Task.Run(async () => 
+        {
+            await RestDispatcher.DispatchCommand(new EditCartItemCommand() { Id = cartId, NewQuantity = item.Quantity, ProductId = item.ProductId}, EndpointEnum.SalesEndpoint);
+            SuccessHandlerService.ShowSuccess("Cart item quantity has been changed!");
+        }).ConfigureAwait(false);
+    }
+
+    private void ResetItemToOriginalValues(object cartItem)
+    {
+        var item = (CartItemModel)cartItem;
+        item.ProductName = cartItemBeforeEdit.ProductName;
+        item.ProductPrice = cartItemBeforeEdit.ProductPrice;
+        item.Quantity = cartItemBeforeEdit.Quantity;
+        item.IsOnStock = cartItemBeforeEdit.IsOnStock;
+        // Dodaj logikę obsługi zdarzeń
+    }
+
+    private bool FilterFunc(CartItemModel item)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (item.ProductName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if ($"{item.ProductPrice} {item.Quantity} {item.IsOnStock}".Contains(searchString))
+            return true;
+        return false;
+    }
+
+    private Task DeleteFromCart()
+    {
+        throw new NotImplementedException();
+    }
+
+    private Task OrderItemsFromCart()
+    {
+        throw new NotImplementedException();
+    }
+
+}

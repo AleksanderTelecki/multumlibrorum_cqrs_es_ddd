@@ -42,5 +42,6 @@ builder.Services.AddScoped<IRestDispatcher, RestDispatcher>();
 builder.Services.AddScoped<IMicroDispatcher, MicroDispatcher>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddSingleton<ErrorHandlerService>();
+builder.Services.AddSingleton<SuccessHandlerService>();
 
 await builder.Build().RunAsync();

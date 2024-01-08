@@ -56,7 +56,9 @@ namespace Product.Domain.Repository
 
         public async Task<BookEntity> GetBook(Guid id)
         {
-            return await _productDomainDataContext.Books.FirstOrDefaultAsync(x => x.Id == id);
+            return await _productDomainDataContext.Books
+                .Include(x => x.Comments)
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task UpdateBook(BookEntity bookEntity)

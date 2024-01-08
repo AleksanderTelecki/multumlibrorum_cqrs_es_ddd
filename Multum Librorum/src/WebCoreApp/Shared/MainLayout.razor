@@ -19,13 +19,14 @@
                 </MudItem>
             </MudGrid>
         </MudLink>
-        <NavMenu/>
+        <MudSpacer />
         @if (_tokenWithUserInfo == null)
         {
             <MudButton Color="Color.Secondary" Variant="Variant.Filled" Link="/login">Login</MudButton>
         }
         else
         {
+            <MudIconButton Class="mr-2" Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Inherit" Link='/cart'></MudIconButton>
             <MudMenu>
                 <ActivatorContent>
                    <MudAvatar Color="Color.Secondary">@_tokenWithUserInfo.UserName.ToUpper()[0]</MudAvatar>
@@ -45,7 +46,9 @@
 
 @inject ILoginService LoginService
 @inject ErrorHandlerService ErrorHandlerService
+@inject SuccessHandlerService SuccessHandlerService
 @inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
 
 @code {
     TokenWithUserInfo _tokenWithUserInfo;
@@ -53,6 +56,7 @@
     protected override async Task OnInitializedAsync()
     {
         ErrorHandlerService.OnError += ShowSnackbar;
+        SuccessHandlerService.OnSuccess += ShowSnackbarSuccess;
         _tokenWithUserInfo = await LoginService.IsUserLogin();
         StateHasChanged();
     }
@@ -62,6 +66,7 @@
         await LoginService.Logout();
         _tokenWithUserInfo = null;
         
+        NavigationManager.NavigateTo($"/", true); 
         StateHasChanged();
     }
     
@@ -69,10 +74,16 @@
     {
         Snackbar.Add(message, Severity.Error);
     }
+    
+    private void ShowSnackbarSuccess(string message)
+    {
+        Snackbar.Add(message, Severity.Success);
+    }
 
     public void Dispose()
     {
         ErrorHandlerService.OnError -= ShowSnackbar;
+        SuccessHandlerService.OnSuccess -= ShowSnackbarSuccess;
     }
 
 }

@@ -4,7 +4,12 @@
 @using CQRS.Communication.Enums
 @using Product.Messages.Events.Models
 @using Product.Messages.Queries
+@using WebCoreApp.Abstract
 @using WebCoreApp.Pages.Dialogs
+@using Client.Messages.Models
+@using Sales.Messages.Commands
+@using Sales.Messages.Queries
+@using WebCoreApp.Services
 
 
 <MudPaper Elevation="3" Class="mx-2">
@@ -41,7 +46,10 @@
                 <MudTd DataLabel="Quantity"> @context.Quantity </MudTd>
                 <MudTd Style="text-align:center">
                     <MudButton Variant="Variant.Outlined" OnClick="@((e) => OpenDialog(context))" Size="Size.Small">Details</MudButton>
-                    <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => GoToBookDetails(context.Title))">Add To Cart</MudButton>
+                    @if (_tokenWithUserInfo != null)
+                    {
+                        <MudButton Class="ml-2" Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => AddToCart(context))">Add To Cart</MudButton>
+                    }
                 </MudTd>
             </RowTemplate>
             <PagerContent>
@@ -52,10 +60,14 @@
 
 @inject IRestDispatcher restDispatcher
 @inject IDialogService Dialog
+@inject ILoginService LoginService
+@inject SuccessHandlerService SuccessHandlerService
 @code {
     private string searchTerm;
     private IEnumerable<BookModel> books;
     private string searchString1 = "";
+    private Guid cartId;
+    private TokenWithUserInfo _tokenWithUserInfo;
 
     private void OpenDialog(BookModel bookModel)
     {
@@ -69,12 +81,15 @@
     protected override async Task OnInitializedAsync()
     {
         books = await restDispatcher.DispatchQuery(new GetAllBooksQuery(), EndpointEnum.ProductEndpoint);
-        StateHasChanged();
-    }
+        
+        _tokenWithUserInfo = await LoginService.IsUserLogin();
 
-    private Task GoToBookDetails(string bookTitle)
-    {
-        return Task.CompletedTask;
+        if (_tokenWithUserInfo != null)
+        {
+            cartId = await restDispatcher.DispatchQuery(new GetClientCartIdQuery() { ClientId = _tokenWithUserInfo.UserId }, EndpointEnum.SalesEndpoint);
+        }
+        
+        StateHasChanged();
     }
     
     private bool FilterFunc1(BookModel bookModel) => FilterFunc(bookModel, searchString1);
@@ -90,6 +105,12 @@
         if ($"{bookModel.Author} {bookModel.Title} {bookModel.Description}".Contains(searchString))
             return true;
         return false;
+    }
+
+    private async Task AddToCart(BookModel context)
+    {
+        await restDispatcher.DispatchCommand(new AddItemToCartCommand() { Id = cartId, ProductId = context.Id, Quantity = 1 }, EndpointEnum.SalesEndpoint);
+        SuccessHandlerService.ShowSuccess("Item added to cart.");
     }
 
 }

@@ -11,7 +11,7 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.7"/>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.7" PrivateAssets="all"/>
         <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.0" />
-        <PackageReference Include="MudBlazor" Version="6.0.13"/>
+        <PackageReference Include="MudBlazor" Version="6.12.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -22,6 +22,7 @@
       <ProjectReference Include="..\..\CQRS.Communication\CQRS.Communication.csproj" />
       <ProjectReference Include="..\Client.Messages\Client.Messages.csproj" />
       <ProjectReference Include="..\Product.Messages\Product.Messages.csproj" />
+      <ProjectReference Include="..\Sales.Messages\Sales.Messages.csproj" />
     </ItemGroup>
 
     <ItemGroup>

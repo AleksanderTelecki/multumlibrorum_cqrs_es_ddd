@@ -30,13 +30,35 @@ namespace Sales.Domain.Aggregates
         {
             var itemId = Guid.NewGuid();
 
-            RaiseEvent(new CartItemAddedEvent
+            if (Items.Exists(x=> x.ProductId == productId))
             {
-                Id = Id,
-                ItemId = itemId,
-                ProductId = productId,
-                Quantity = quantity
-            });
+                var item = Items.Single(x => x.ProductId == productId);
+                
+                item.Quantity += quantity;
+                quantity = item.Quantity;
+                itemId = item.Id;
+                
+                RaiseEvent(new CartItemEditedEvent
+                {
+                    Id = Id,
+                    ProductId = productId,
+                    NewQuantity = quantity,
+                    ItemId = itemId
+                });
+                
+            }
+            else
+            {
+                RaiseEvent(new CartItemAddedEvent
+                {
+                    Id = Id,
+                    ItemId = itemId,
+                    ProductId = productId,
+                    Quantity = quantity
+                });
+            }
+            
+            
         }
 
         public void RemoveItem(Guid productId)

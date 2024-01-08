@@ -58,7 +58,9 @@ namespace Sales.Domain.Repository
 
         public async Task<CartEntity> GetCartByClientId(Guid clientId)
         {
-            return await _salesDataContext.Carts.SingleOrDefaultAsync(x => x.ClientId == clientId);
+            return await _salesDataContext.Carts
+                .Include(x => x.Items)
+                .SingleOrDefaultAsync(x => x.ClientId == clientId);
         }
 
         public async Task<CartEntity> GetCartById(Guid cartId)
