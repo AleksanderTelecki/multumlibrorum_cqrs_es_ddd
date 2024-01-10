@@ -6,6 +6,7 @@
 @using Client.Messages.Models
 @using CQRS.Communication.Enums
 @using Sales.Messages.Commands
+@using WebCoreApp.Pages.Dialogs
 @using WebCoreApp.Services
 
 <MudContainer Class="my-12 py-12">
@@ -13,9 +14,8 @@
               Filter="new Func<CartItemModel,bool>(FilterFunc)" @bind-SelectedItem="selectedCartItem" 
               RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues" RowEditCommit="ItemHasBeenCommitted" >
         <ToolBarContent>
-            <MudText Typo="Typo.h6">Shopping Cart Items</MudText>
+            <MudText Typo="Typo.h6">Shopping Cart</MudText>
             <MudSpacer />
-            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
         </ToolBarContent>
         <HeaderContent>
             <MudTh><MudTableSortLabel SortBy="new Func<CartItemModel, object>(x=>x.ProductName)">Product Name</MudTableSortLabel></MudTh>
@@ -48,8 +48,8 @@
         </PagerContent>
     </MudTable>
     <MudPaper Class="my-2 mx-3">
-        <MudIconButton Class="align-self-end" Elevation="6" Color="Color.Secondary" Disabled="!selectedItems.Any()" OnClick="@(() => DeleteFromCart())" Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>
-        <MudButton Class="align-self-end" Elevation="6" Variant="Variant.Filled" Color="Color.Primary" Disabled="!selectedItems.Any()" OnClick="@(() => OrderItemsFromCart())"> Create Order</MudButton>
+        <MudIconButton Elevation="6" Color="Color.Secondary" Disabled="!selectedItems.Any()" OnClick="@(() => DeleteFromCart())" Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>
+        <MudButton Elevation="6" Variant="Variant.Filled" Disabled="!CartItems.Any()" Color="Color.Primary" OnClick="@(() => OrderItemsFromCart())"> Order all cart items</MudButton>
     </MudPaper>
     
     
@@ -58,6 +58,8 @@
 @inject ILoginService LoginService
 @inject IRestDispatcher RestDispatcher
 @inject SuccessHandlerService SuccessHandlerService
+@inject ErrorHandlerService ErrorHandlerService
+@inject IDialogService Dialog
 @code {
     private List<CartItemModel> CartItems = new List<CartItemModel>();
     private HashSet<CartItemModel> selectedItems = new HashSet<CartItemModel>();
@@ -84,7 +86,6 @@
     {
         var item = (CartItemModel)cartItem;
         cartItemBeforeEdit = new CartItemModel(item.Id, item.ProductId, item.ProductName, item.ProductPrice, item.Quantity, item.IsOnStock);
-        // Dodaj logikę obsługi zdarzeń
     }
 
     private void ItemHasBeenCommitted(object cartItem)
@@ -104,7 +105,6 @@
         item.ProductPrice = cartItemBeforeEdit.ProductPrice;
         item.Quantity = cartItemBeforeEdit.Quantity;
         item.IsOnStock = cartItemBeforeEdit.IsOnStock;
-        // Dodaj logikę obsługi zdarzeń
     }
 
     private bool FilterFunc(CartItemModel item)
@@ -118,14 +118,35 @@
         return false;
     }
 
-    private Task DeleteFromCart()
+    private async Task DeleteFromCart()
     {
-        throw new NotImplementedException();
+        foreach (var cartItem in selectedItems)
+        {
+            await RestDispatcher.DispatchCommand(new RemoveItemFromCartCommand() { Id = cartId, ProductId = cartItem.ProductId}, EndpointEnum.SalesEndpoint);
+        }
+
+        foreach (var cartItem in selectedItems)
+        {
+            if (CartItems.Exists(x=>x.Id == cartItem.Id))
+            {
+                CartItems.Remove(CartItems.Single(x => x.Id == cartItem.Id));
+            }
+        }
+        
+        SuccessHandlerService.ShowSuccess("Items deleted from cart!");
+        StateHasChanged();
     }
 
-    private Task OrderItemsFromCart()
+    private async Task OrderItemsFromCart()
     {
-        throw new NotImplementedException();
+        var parameters = new DialogParameters();
+        parameters.Add("CartItems", CartItems);
+        parameters.Add("CartId", cartId);
+
+        var options = new DialogOptions() { FullWidth = true, CloseButton = true };
+        Dialog.Show<OrderProcessingDialog>("Order Processing", parameters, options);
+        
+        StateHasChanged();
     }
 
 }

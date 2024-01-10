@@ -16,6 +16,7 @@ namespace Sales.Domain.Repository
         public Task<CartEntity> GetCartById(Guid cartId);
         public Task EditCartItem(Guid itemId, int newQuantity);
         public Task RemoveCartItem(Guid itemId);
+        public Task ClearCart(Guid cartId);
         public Task UpdateCart(CartEntity cartEntity);
     }
 
@@ -75,6 +76,17 @@ namespace Sales.Domain.Repository
             var item  = _salesDataContext.CartItems.Single(x => x.Id == itemId);
 
             _salesDataContext.CartItems.Remove(item);
+            await _salesDataContext.SaveChangesAsync();
+        }
+        
+        public async Task ClearCart(Guid cartId)
+        {
+            var cart = await _salesDataContext.Carts
+                .Include(x => x.Items)
+                .SingleOrDefaultAsync(x => x.Id == cartId);
+
+            cart.Items.Clear();
+            
             await _salesDataContext.SaveChangesAsync();
         }
 

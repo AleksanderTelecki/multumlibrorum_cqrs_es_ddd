@@ -1,4 +1,5 @@
-﻿using CQRS.Core.Events.Abstract;
+﻿using CQRS.Core.Events;
+using CQRS.Core.Events.Abstract;
 using Sales.Domain.Repository;
 using Sales.Messages.Events;
 
@@ -6,7 +7,8 @@ namespace Sales.Domain.EventHandlers;
 
 public class OrderEventHandler :
     IEventHandler<OrderCreatedEvent>,
-    IEventHandler<OrderStateUpdatedEvent>
+    IEventHandler<OrderStateUpdatedEvent>,
+    IEventHandler<OrderProductsAddedEvent>
 {
     
     private readonly IOrderRepository _orderRepository;
@@ -18,11 +20,16 @@ public class OrderEventHandler :
 
     public async Task Handle(OrderCreatedEvent @event, CancellationToken cancellation)
     {
-        throw new NotImplementedException();
+        await _orderRepository.CreateOrderForClient(@event.Id, @event.ClientId);
     }
 
     public async Task Handle(OrderStateUpdatedEvent @event, CancellationToken cancellation)
     {
-        throw new NotImplementedException();
+        await _orderRepository.ChangeOrderState(@event.Id, @event.NewOrderState);
+    }
+
+    public async Task Handle(OrderProductsAddedEvent @event, CancellationToken cancellation)
+    { 
+        await _orderRepository.AddProductsToOrder(@event.Id, @event.OrderItems);
     }
 }

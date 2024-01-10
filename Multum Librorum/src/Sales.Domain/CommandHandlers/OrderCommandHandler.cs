@@ -29,19 +29,22 @@ public class OrderCommandHandler:
         lock (_lockObject)
         {
             var cart = _aggregateRepository.LoadAsync<Cart>(command.CartId).GetAwaiter().GetResult();
-
+            
             _restDispatcher.DispatchCommand(
                 new InitializeBookOrderCommand
                     { ProductsWithQuantity = cart.Items.ToDictionary(x => x.ProductId, y => y.Quantity) },
                 EndpointEnum.ProductEndpoint).GetAwaiter().GetResult();
 
-            var order = new Order(cart.ClientId);
+            var order = new Order(cart.ClientId, command.OrderId);
             var orderedProducts = cart.Items.Select(x => new OrderItem(Guid.NewGuid(), x.ProductId, x.Quantity));
             
             order.AddProductsToOrder(orderedProducts.ToList());
             order.MarkAsPlaced();
-
+            
+            cart.Clear();
+            
             _aggregateRepository.StoreAsync(order).GetAwaiter().GetResult();
+            _aggregateRepository.StoreAsync(cart).GetAwaiter().GetResult();
         }
     }
 }

@@ -14,7 +14,8 @@ namespace Sales.Domain.EventHandlers
         IEventHandler<CartCreatedEvent>,
         IEventHandler<CartItemAddedEvent>,
         IEventHandler<CartItemEditedEvent>,
-        IEventHandler<CartItemRemovedEvent>
+        IEventHandler<CartItemRemovedEvent>,
+        IEventHandler<CartClearedEvent>
 
     {
         private readonly ICartRepository _cartRepository;
@@ -42,6 +43,11 @@ namespace Sales.Domain.EventHandlers
         public async Task Handle(CartItemRemovedEvent @event, CancellationToken cancellation)
         {
             await _cartRepository.RemoveCartItem(@event.ItemId);
+        }
+
+        public async Task Handle(CartClearedEvent @event, CancellationToken cancellation)
+        {
+            await _cartRepository.ClearCart(@event.Id);
         }
     }
 }

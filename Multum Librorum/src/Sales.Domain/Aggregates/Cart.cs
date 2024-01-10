@@ -72,6 +72,14 @@ namespace Sales.Domain.Aggregates
                 ItemId = itemId
             });
         }
+        
+        public void Clear()
+        {
+            RaiseEvent(new CartClearedEvent()
+            {
+                Id = Id
+            });
+        }
 
         public void EditItemQuantity(Guid productId, int newQuantity)
         {
@@ -84,6 +92,13 @@ namespace Sales.Domain.Aggregates
                 NewQuantity = newQuantity,
                 ItemId = itemId
             });
+        }
+        
+        public void Apply(CartClearedEvent @event)
+        {
+            Items.Clear();
+
+            Version++;
         }
 
         public void Apply(CartItemEditedEvent @event)

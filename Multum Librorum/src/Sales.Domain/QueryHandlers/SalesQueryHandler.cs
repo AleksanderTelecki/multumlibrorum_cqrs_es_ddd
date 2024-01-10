@@ -10,15 +10,18 @@ namespace Sales.Domain.QueryHandlers;
 
 public class SalesQueryHandler: 
     IQueryHandler<GetClientCartQuery, List<CartItemModel>>,
-    IQueryHandler<GetClientCartIdQuery, Guid>
+    IQueryHandler<GetClientCartIdQuery, Guid>,
+    IQueryHandler<GetClientOrdersModelQuery, List<OrderModel>>
 {
     private readonly ICartRepository _cartRepository;
+    private readonly IOrderRepository _orderRepository;
     private readonly IRestDispatcher _restDispatcher;
 
-    public SalesQueryHandler(ICartRepository cartRepository, IRestDispatcher restDispatcher)
+    public SalesQueryHandler(ICartRepository cartRepository, IRestDispatcher restDispatcher, IOrderRepository orderRepository)
     {
         _cartRepository = cartRepository;
         _restDispatcher = restDispatcher;
+        _orderRepository = orderRepository;
     }
     
     public async Task<List<CartItemModel>> Handle(GetClientCartQuery query, CancellationToken cancellationToken)
@@ -47,10 +50,43 @@ public class SalesQueryHandler:
 
         return clientCartModel;
     }
-
+    
     public async Task<Guid> Handle(GetClientCartIdQuery query, CancellationToken cancellationToken)
     {
         var clientCart = await _cartRepository.GetCartByClientId(query.ClientId);
         return clientCart.Id;
+    }
+
+    public async Task<List<OrderModel>> Handle(GetClientOrdersModelQuery query, CancellationToken cancellationToken)
+    {
+        var clietOrders = await _orderRepository.GetOrdersByClientId(query.ClientId);
+        List<OrderModel> orderModels = new List<OrderModel>();
+        
+        foreach (var order in clietOrders)
+        {
+            orderModels.Add(new OrderModel() { OrderId = order.Id, ClientId = order.ClientId, State = order.State});
+
+            var orderModel = orderModels.Single(x => x.OrderId == order.Id);
+            
+            foreach (var orderItem in order.Items)
+            {
+                var productInfo =
+                    await _restDispatcher.DispatchQuery(new GetBookModelQuery() { ProductId = orderItem.ProductId },
+                        EndpointEnum.ProductEndpoint);
+
+                orderModel.Items.Add(new OrderItemModel()
+                {
+                    Id = orderItem.Id, 
+                    ProductId = productInfo.Id, 
+                    ProductName = productInfo.Title,
+                    ProductPrice = (productInfo.PromotedPrice ?? productInfo.Price) * orderItem.Quantity,
+                    Quantity = orderItem.Quantity
+                });
+            }
+            
+            
+        }
+
+        return orderModels;
     }
 }

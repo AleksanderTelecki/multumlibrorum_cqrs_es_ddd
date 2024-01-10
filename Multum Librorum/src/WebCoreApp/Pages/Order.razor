@@ -1,0 +1,171 @@
+﻿@page "/order"
+@using WebCoreApp.Abstract
+@using WebCoreApp.Services
+@using CQRS.Communication.Abstract
+@using Client.Messages.Models
+@using CQRS.Communication.Enums
+@using Sales.Messages.Models
+@using Sales.Messages.Queries
+<MudContainer Class="my-12 py-12">
+<MudTable Items="@Orders" Hover="true" Breakpoint="Breakpoint.Sm">
+<ToolBarContent>
+            <MudText Typo="Typo.h6">Orders</MudText>
+            <MudSpacer />
+        </ToolBarContent>
+	<ColGroup>
+		<col />
+		<col />
+		<col />
+		<col />
+	</ColGroup>
+	<HeaderContent>
+		<MudTh></MudTh>
+		<MudTh>Order Id</MudTh>
+		<MudTh>Order State</MudTh>
+	</HeaderContent>
+	<RowTemplate>
+		<MudTd><MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => ShowBtnPress(context.OrderModel.OrderId))">@((context.ShowDetails == true)? "Hide" : "Show") Address Details</MudButton></MudTd>
+		<MudTd DataLabel="Order Id">@context.OrderModel.OrderId</MudTd>
+		<MudTd DataLabel="Order State">@context.OrderModel.State.ToString()</MudTd>
+	</RowTemplate>
+	<ChildRowContent>
+		@if (context.ShowDetails)
+		{
+			<MudTr>
+				<td colspan="4">
+					<MudCard Elevation="0">
+						<MudCardHeader>
+							<CardHeaderContent>
+								<MudText Typo="Typo.body1">Order Details</MudText>
+							</CardHeaderContent>
+						</MudCardHeader>
+						<MudCardContent Class="pa-0">
+							<MudTable Items="@context.OrderModel.Items" Context="OrderItemContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
+								<ColGroup>
+									<col />
+									<col />
+									<col />
+								</ColGroup>
+								<HeaderContent>
+									<MudTh>Product Name</MudTh>
+									<MudTh>Product Price</MudTh>
+									<MudTh>Quantity</MudTh>
+								</HeaderContent>
+								<RowTemplate>
+									<MudTd DataLabel="Product Name">@OrderItemContext.ProductName</MudTd>
+									<MudTd DataLabel="Product Price">$ @OrderItemContext.ProductPrice</MudTd>
+									<MudTd DataLabel="Quantity">@OrderItemContext.Quantity</MudTd>
+								</RowTemplate>
+								<FooterContent>
+									<MudTd>Price Sum: $ @context.OrderModel.Items.Sum(x=>x.ProductPrice)</MudTd>
+								</FooterContent>
+							</MudTable>
+						</MudCardContent>
+					</MudCard>
+				</td>
+			</MudTr>
+		}
+	</ChildRowContent>
+</MudTable>
+</MudContainer>
+
+@inject ILoginService LoginService
+@inject IRestDispatcher RestDispatcher
+@inject SuccessHandlerService SuccessHandlerService
+@inject ErrorHandlerService ErrorHandlerService
+@code
+{
+
+	public class OrderWraper
+	{
+		public OrderModel OrderModel { get; set; }
+		public bool ShowDetails { get; set; }
+	}
+	
+	private List<OrderWraper> Orders = new List<OrderWraper>();
+	private TokenWithUserInfo _tokenWithUserInfo;
+	private string searchString = "";
+	
+	protected override async Task OnInitializedAsync()
+	{
+		_tokenWithUserInfo = await LoginService.IsUserLogin();
+		var orders = await RestDispatcher.DispatchQuery(new GetClientOrdersModelQuery() { ClientId = _tokenWithUserInfo.UserId }, EndpointEnum.SalesEndpoint);
+
+		foreach (var order in orders)
+		{
+			Orders.Add(new OrderWraper() {OrderModel = order});
+		}
+	}
+
+
+	
+
+	protected override void OnInitialized()
+	{
+		FillPeople();
+	}
+
+	public class Address
+	{
+		public string Address_Line_1 { get; set; }
+		public string Address_Line_2 { get; set; }
+		public int Postal_Code { get; set; }
+	}
+	public class Person
+	{
+		public bool ShowDetails { get; set; }
+		public int Number { get; set; }
+		public string Name { get; set; }
+		public int Age { get; set; }
+		public IList<Address> Addresses { get; set; }
+	}
+	private void FillPeople()
+	{
+		IList<Person> people = new List<Person>();
+		IList<Address> addresses = new List<Address>();
+		addresses.Add(new Address { Address_Line_1 = "4 Privet Drive", Address_Line_2 = "Little Whinging", Postal_Code = 111 });
+		addresses.Add(new Address { Address_Line_1 = "12 Grimmauld Place", Address_Line_2 = "The Burrow", Postal_Code = 333 });
+		people.Add(new Person
+		{
+			ShowDetails = false,
+			Number = 1,
+			Name = "Harry Potter",
+			Age = 11,
+			Addresses = addresses
+		});
+
+		addresses = new List<Address>();
+		addresses.Add(new Address { Address_Line_1 = "123 Pikachu Lane", Address_Line_2 = "Pallet Town", Postal_Code = 777 });
+		addresses.Add(new Address { Address_Line_1 = "456 Mew Street", Address_Line_2 = "Pallet Town", Postal_Code = 999 });
+		people.Add(new Person
+		{
+			ShowDetails = false,
+			Number = 2,
+			Name = "Ash Ketchum",
+			Age = 18,
+			Addresses = addresses
+		});
+		People = people;
+
+		addresses = new List<Address>();
+		addresses.Add(new Address { Address_Line_1 = "123 Shire Lane", Address_Line_2 = "Bag End", Postal_Code = 223 });
+		addresses.Add(new Address { Address_Line_1 = "456 Shire Street", Address_Line_2 = "Bag End", Postal_Code = 445 });
+		addresses.Add(new Address { Address_Line_1 = "789 Shire Avenue", Address_Line_2 = "Bag End", Postal_Code = 667 });
+		people.Add(new Person
+		{
+			ShowDetails = true,
+			Number = 3,
+			Name = "Frodo Baggins",
+			Age = 24,
+			Addresses = addresses
+		});
+		People = people;
+	}
+	private static IEnumerable<Person> People { get; set; }
+
+	private void ShowBtnPress(Guid orderId)
+	{
+		var tmpOrder = Orders.First(x=>x.OrderModel.OrderId == orderId);
+		tmpOrder.ShowDetails = !tmpOrder.ShowDetails;
+	}
+}

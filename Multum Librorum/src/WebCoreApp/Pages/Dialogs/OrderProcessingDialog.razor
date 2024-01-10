@@ -1,0 +1,124 @@
+﻿@using Product.Messages.Events.Models
+@using Client.Messages.Models
+@using CQRS.Communication.Abstract
+@using CQRS.Communication.Enums
+@using Product.Messages.Commands
+@using Sales.Messages.Commands
+@using Sales.Messages.Models
+@using WebCoreApp.Abstract
+@using WebCoreApp.Services
+
+<MudDialog Style="min-width: 100vh; min-height: 70vh;">
+    <DialogContent>
+        @if (loading)
+        {
+            <MudContainer Style="display: flex; align-items: center; justify-content: center; height: 100%;" Class="mt-16" MaxWidth="MaxWidth.Medium">
+                <MudProgressCircular Color="Color.Primary" Style="height:80px;width:80px;" Indeterminate="true" />
+            </MudContainer>
+        }
+        else
+        {
+            <MudContainer Class="mt-16" MaxWidth="MaxWidth.Medium">
+                <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">Checkout</MudText>
+                <MudGrid Spacing="6" Class="mt-16">
+                    <MudItem xs="7">
+                        <MudText Typo="Typo.h5" GutterBottom="true">Billing address</MudText>
+                        <MudGrid>
+                            <MudItem xs="6">
+                                <MudTextField T="string" Label="First name"/>
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudTextField T="string" Label="Last name"/>
+                            </MudItem>
+                            <MudItem xs="12">
+                                <MudTextField T="string" Label="Card Number"/>
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudTextField T="string" Label="Expiration Date"/>
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudTextField T="string" Label="CVV"/>
+                            </MudItem>
+                            <MudItem xs="12" Class="d-flex justify-center">
+                                <MudButton Variant="Variant.Filled" OnClick="@(()=>CreateOrderAndPay())" DisableElevation="true" Color="Color.Primary" Size="Size.Large" Class="mt-8">Continue to Payment</MudButton>
+                            </MudItem>
+                        </MudGrid>
+                    </MudItem>
+                    <MudItem xs="5">
+                        <MudText Typo="Typo.h5" GutterBottom="true">Cart</MudText>
+                        <MudPaper Class="d-flex flex-column" Style="height:100%;" Outlined="true">
+                            <MudList Clickable="true">
+
+                                @foreach (var item in CartItems)
+                                {
+                                    <MudListItem Icon="@Icons.Material.Filled.Book">
+                                        <div class="d-flex">
+                                            <MudText>@item.ProductName</MudText>
+                                            <MudText Inline="true" Class="ml-auto">$@item.ProductPrice</MudText>
+                                        </div>
+                                    </MudListItem>
+                                }
+
+                            </MudList>
+                            <div class="mt-auto">
+                                <MudDivider/>
+                                <div class="d-flex pa-4">
+                                    <MudText>Total:</MudText>
+                                    <MudText Class="ml-auto"><b>$@CartItems.Sum(x => x.ProductPrice)</b></MudText>
+                                </div>
+                            </div>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudContainer>
+        }
+    </DialogContent>
+    <DialogActions>
+    </DialogActions>
+</MudDialog>
+
+@inject ILoginService LoginService
+@inject IRestDispatcher RestDispatcher
+@inject ErrorHandlerService ErrorHandlerService
+@inject SuccessHandlerService SuccessHandlerService
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    private TokenWithUserInfo _tokenWithUserInfo;
+    [Parameter] public Guid cartId { get; set; }
+    [Parameter] public List<CartItemModel> CartItems { get; set; } = new List<CartItemModel>();
+    private bool loading;
+
+    protected async override Task OnInitializedAsync()
+    {
+        _tokenWithUserInfo = await LoginService.IsUserLogin();
+        StateHasChanged();
+    }
+    
+    private async Task CreateOrderAndPay()
+    {
+        try
+        {
+            loading = true;
+            
+            StateHasChanged();
+
+            var orderId = Guid.NewGuid();
+            
+            await RestDispatcher.DispatchCommand(new CreateOrderCommand() { CartId = cartId, OrderId = orderId}, EndpointEnum.SalesEndpoint);
+            CartItems.Clear();
+
+            SuccessHandlerService.ShowSuccess("Payment realized!");
+
+            loading = false;
+            MudDialog.Close();
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            ErrorHandlerService.ShowError("Payment or order creation failed!");
+            StateHasChanged();
+        }
+    }
+
+
+}

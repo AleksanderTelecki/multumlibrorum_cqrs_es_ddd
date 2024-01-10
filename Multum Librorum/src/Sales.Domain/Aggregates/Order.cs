@@ -11,9 +11,9 @@ public class Order: AggregateRoot
     public List<OrderItem> Items { get; protected set; }
     public OrderState State { get; protected set; }
 
-    public Order(Guid clientId)
+    public Order(Guid clientId, Guid orderId)
     {
-        Id = Guid.NewGuid();
+        Id = orderId;
         
         RaiseEvent(new OrderCreatedEvent
         {
