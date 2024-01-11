@@ -6,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Client.Messages.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Employee.Endpoint.Controllers
 {
@@ -29,7 +31,7 @@ namespace Employee.Endpoint.Controllers
             {
                 var employee = await _queryDispatcher.Dispatch(new GetEmployeeByEmail { Email = emplCredentials.Email });
 
-                if (employee != null)
+                if (employee != null && employee.Password == emplCredentials.Password)
                 {
                     var claims = new[] {
                         new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
@@ -49,8 +51,16 @@ namespace Employee.Endpoint.Controllers
                         claims,
                         expires: DateTime.UtcNow.AddMinutes(10),
                         signingCredentials: signIn);
-
-                    return Ok(new JwtSecurityTokenHandler().WriteToken(token));
+                    
+                    var tokenWithUserInfo = new TokenWithUserInfo()
+                    {
+                        Token = new JwtSecurityTokenHandler().WriteToken(token),
+                        UserEmail = employee.Email,
+                        UserName = employee.Name,
+                        UserId = employee.Id
+                    };
+                    
+                    return Ok(tokenWithUserInfo);
                 }
                 else
                 {
@@ -61,6 +71,13 @@ namespace Employee.Endpoint.Controllers
             {
                 return BadRequest();
             }
+        }
+        
+        [Authorize]
+        [HttpGet("Check")]
+        public IActionResult CheckToken()
+        {
+            return Ok();
         }
 
     }

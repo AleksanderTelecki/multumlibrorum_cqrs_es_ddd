@@ -1,0 +1,55 @@
+﻿@page "/employee"
+@using System.ComponentModel.DataAnnotations
+@using WebCoreApp.Abstract
+
+@layout AdminPanelLayout
+
+<MudContainer Class="my-12 py-12">
+<MudGrid>
+    <MudItem xs="12" sm="7">
+        <MudPaper Class="pa-4">
+            <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+                <MudTextField Immediate="true" T="string" Label="Email" Required="true" RequiredError="Email is required!"
+                              Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})" @ref="pwField2" />
+                <MudTextField Immediate="true" T="string" Label="Password" HelperText="Password" @ref="pwField1"
+                              InputType="InputType.Password"
+                              Required="true"
+                              RequiredError="Password is required!"/>
+            </MudForm>   
+        </MudPaper>
+        <MudPaper Class="pa-4 mt-4">
+            <MudButton Variant="Variant.Filled" Disabled="!form.IsValid" Color="Color.Primary" DisableElevation="true" OnClick="@(()=>Login())">Login</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" DisableElevation="true" Link="/register" Class="mx-2">Registration</MudButton>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="5">
+        <MudPaper Class="pa-4 mud-height-full">
+            <MudText Typo="Typo.subtitle2">@($"Errors ({errors.Length})")</MudText>
+            @foreach (var error in errors)
+            {
+                <MudText Color="@Color.Error">@error</MudText>
+            }
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+</MudContainer>
+
+@inject NavigationManager NavigationManager
+@inject ILoginService LoginService
+@code {
+    bool success;
+    string[] errors = { };
+    MudTextField<string> pwField1;
+    MudTextField<string> pwField2;
+    MudForm form;
+
+    public async Task Login()
+    {
+        if (await LoginService.LoginEmployee( pwField2.Text, pwField1.Text))
+        {
+            StateHasChanged();
+            NavigationManager.NavigateTo($"/adminp", true); 
+        }
+    }
+
+}

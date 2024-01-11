@@ -44,9 +44,39 @@ public class Order: AggregateRoot
         }); 
     }
     
+    public void MarkAsRealized()
+    {
+        RaiseEvent(new OrderRealizedEvent()
+        {
+            Id = Id,
+        }); 
+    }
+    
+    public void MarkAsPaid()
+    {
+        RaiseEvent(new OrderPaidEvent()
+        {
+            Id = Id,
+        }); 
+    }
+    
     public void Apply(OrderPlacedEvent @event)
     {
         State = OrderState.Placed;
+
+        Version++;
+    }
+    
+    public void Apply(OrderPaidEvent @event)
+    {
+        State = OrderState.Paid;
+
+        Version++;
+    }
+    
+    public void Apply(OrderRealizedEvent @event)
+    {
+        State = OrderState.Realized;
 
         Version++;
     }

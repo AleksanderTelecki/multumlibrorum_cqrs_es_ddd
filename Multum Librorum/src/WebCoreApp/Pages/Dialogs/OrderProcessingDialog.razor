@@ -2,6 +2,7 @@
 @using Client.Messages.Models
 @using CQRS.Communication.Abstract
 @using CQRS.Communication.Enums
+@using Payment.Messages.Commands
 @using Product.Messages.Commands
 @using Sales.Messages.Commands
 @using Sales.Messages.Models
@@ -25,19 +26,19 @@
                         <MudText Typo="Typo.h5" GutterBottom="true">Billing address</MudText>
                         <MudGrid>
                             <MudItem xs="6">
-                                <MudTextField T="string" Label="First name"/>
+                                <MudTextField Required="true" @bind-Value="_repaymentInfo.FirstName" T="string" Label="First name"/>
                             </MudItem>
                             <MudItem xs="6">
-                                <MudTextField T="string" Label="Last name"/>
+                                <MudTextField Required="true" @bind-Value="_repaymentInfo.LastName" T="string" Label="Last name"/>
                             </MudItem>
                             <MudItem xs="12">
-                                <MudTextField T="string" Label="Card Number"/>
+                                <MudTextField Required="true" @bind-Value="_repaymentInfo.CardNumber" T="string" Label="Card Number"/>
                             </MudItem>
                             <MudItem xs="6">
-                                <MudTextField T="string" Label="Expiration Date"/>
+                                <MudTextField Required="true" @bind-Value="_repaymentInfo.ExpirationDate" T="string" Label="Expiration Date"/>
                             </MudItem>
                             <MudItem xs="6">
-                                <MudTextField T="string" Label="CVV"/>
+                                <MudTextField Required="true" @bind-Value="_repaymentInfo.CVV" T="string" Label="CVV"/>
                             </MudItem>
                             <MudItem xs="12" Class="d-flex justify-center">
                                 <MudButton Variant="Variant.Filled" OnClick="@(()=>CreateOrderAndPay())" DisableElevation="true" Color="Color.Primary" Size="Size.Large" Class="mt-8">Continue to Payment</MudButton>
@@ -86,6 +87,7 @@
     private TokenWithUserInfo _tokenWithUserInfo;
     [Parameter] public Guid cartId { get; set; }
     [Parameter] public List<CartItemModel> CartItems { get; set; } = new List<CartItemModel>();
+    private RepaymentInfo _repaymentInfo = new RepaymentInfo();
     private bool loading;
 
     protected async override Task OnInitializedAsync()
@@ -105,8 +107,9 @@
             var orderId = Guid.NewGuid();
             
             await RestDispatcher.DispatchCommand(new CreateOrderCommand() { CartId = cartId, OrderId = orderId}, EndpointEnum.SalesEndpoint);
-            CartItems.Clear();
 
+            await RestDispatcher.DispatchCommand(new CreateRepaymentToOrderCommand() { OrderId = orderId, CardNumber = _repaymentInfo.CardNumber, CardOwner = $"{_repaymentInfo.FirstName} {_repaymentInfo.LastName}", ExpirationDate = _repaymentInfo.ExpirationDate, CVV = _repaymentInfo.CVV, Amount = CartItems.Sum(x => x.ProductPrice) }, EndpointEnum.PaymentEndpoint);
+            
             SuccessHandlerService.ShowSuccess("Payment realized!");
 
             loading = false;
@@ -118,6 +121,15 @@
             ErrorHandlerService.ShowError("Payment or order creation failed!");
             StateHasChanged();
         }
+    }
+
+    public class RepaymentInfo
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string CardNumber { get; set; }
+        public string ExpirationDate { get; set; }
+        public string CVV { get; set; }
     }
 
 

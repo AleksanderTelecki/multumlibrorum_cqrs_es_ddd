@@ -1,11 +1,13 @@
-﻿using Payment.Domain.Repository.Entity;
+﻿using Microsoft.EntityFrameworkCore;
+using Payment.Domain.Repository.Entity;
+using Payment.Messages.Models;
 
 namespace Payment.Domain.Repository;
 
 public interface IRepaymentRepository
 {
-    public Task CreateNewRepayment(Guid clientId);
-    public Task UpdateRepayment(RepaymentEntity repaymentEntity);
+    public Task CreateNewRepayment(RepaymentEntity repaymentEntity);
+    public Task UpdateStatus(Guid repaymentId, RepaymentStatus repaymentStatus);
 }
 
 public class RepaymentRepository: IRepaymentRepository
@@ -17,13 +19,17 @@ public class RepaymentRepository: IRepaymentRepository
         _repaymentsDataContext = repaymentsDataContext;
     }
     
-    public Task CreateNewRepayment(Guid clientId)
+    public async Task CreateNewRepayment(RepaymentEntity repaymentEntity)
     {
-        throw new NotImplementedException();
+        _repaymentsDataContext.Repayments.Add(repaymentEntity);
+        await _repaymentsDataContext.SaveChangesAsync();
     }
 
-    public Task UpdateRepayment(RepaymentEntity repaymentEntity)
+    public async Task UpdateStatus(Guid repaymentId, RepaymentStatus repaymentStatus)
     {
-        throw new NotImplementedException();
+        var repayment = await _repaymentsDataContext.Repayments.FirstAsync(x => x.Id == repaymentId);
+        repayment.Status = repaymentStatus;
+        
+        await _repaymentsDataContext.SaveChangesAsync();
     }
 }

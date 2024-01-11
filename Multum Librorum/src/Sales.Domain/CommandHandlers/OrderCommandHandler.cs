@@ -5,12 +5,14 @@ using Marte.EventSourcing.Core.Abstract;
 using Product.Messages.Commands;
 using Sales.Domain.Aggregates;
 using Sales.Messages.Commands;
+using Sales.Messages.Enums;
 using Sales.Messages.Models;
 
 namespace Sales.Domain.CommandHandlers;
 
 public class OrderCommandHandler: 
-    ICommandHandler<CreateOrderCommand>
+    ICommandHandler<CreateOrderCommand>,
+    ICommandHandler<ChangeOrderStateCommand>
 {
     private readonly IAggregateRepository _aggregateRepository;
     private readonly IRestDispatcher _restDispatcher;
@@ -46,5 +48,18 @@ public class OrderCommandHandler:
             _aggregateRepository.StoreAsync(order).GetAwaiter().GetResult();
             _aggregateRepository.StoreAsync(cart).GetAwaiter().GetResult();
         }
+    }
+
+    public async Task Handle(ChangeOrderStateCommand command, CancellationToken cancellation)
+    {
+        var order = await _aggregateRepository.LoadAsync<Order>(command.OrderId);
+
+        if(command.OrderState == OrderState.Paid)
+            order.MarkAsPaid();
+        
+        if(command.OrderState == OrderState.Realized)
+            order.MarkAsRealized();
+
+        await _aggregateRepository.StoreAsync(order);
     }
 }

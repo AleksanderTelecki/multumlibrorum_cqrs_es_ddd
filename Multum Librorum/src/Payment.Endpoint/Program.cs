@@ -7,12 +7,13 @@ using KafkaFlow.Retry;
 using Kafka.Core.Middleware;
 using Marten;
 using Weasel.Core;
+using Microsoft.EntityFrameworkCore;
 using Marte.EventSourcing.Core.Abstract;
 using Marten.EventSourcing.Core;
 using Kafka.Core.Abstract;
 using Kafka.Core.Services.Producer;
 using CQRS.Core.Extensions;
-using Microsoft.EntityFrameworkCore;
+using CQRS.Web.Extensions;
 using Payment.Domain;
 using Payment.Domain.Repository;
 
@@ -24,7 +25,7 @@ var kafkaConsumerConf = builder.Configuration.GetSection(nameof(KafkaConsumerOpt
 var kafkaBootstrapServer = builder.Configuration.GetConnectionString("KafkaBootstrapServer")!;
 
 // Configurations
-builder.Services.AddDbContext<RepaymentsDataContext>(o => o.UseLazyLoadingProxies().UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
+builder.Services.AddDbContext<RepaymentsDataContext>(o => o.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
 builder.Services.Configure<KafkaConsumerOptions>(builder.Configuration.GetSection(nameof(KafkaConsumerOptions)));
 builder.Services.Configure<KafkaProducerOptions>(builder.Configuration.GetSection(nameof(KafkaProducerOptions)));
 
@@ -95,9 +96,20 @@ builder.Services.AddKafka(
 builder.Services.AddHostedService<KafkaConsumerHostedService>();
 
 builder.Services.AddControllers();
+builder.Services.AddRestController(builder.Configuration);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("MyCorsPolicy", builder =>
+    {
+        builder.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
@@ -108,6 +120,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("MyCorsPolicy");
 
 app.UseHttpsRedirection();
 

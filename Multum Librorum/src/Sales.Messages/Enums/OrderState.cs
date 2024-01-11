@@ -4,5 +4,6 @@ public enum OrderState
 {
     Created,
     Placed,
-    Realized
+    Realized,
+    Paid
 }
