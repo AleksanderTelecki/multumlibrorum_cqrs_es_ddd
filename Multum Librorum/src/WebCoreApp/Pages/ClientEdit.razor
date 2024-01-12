@@ -1,0 +1,139 @@
+﻿@page "/editclient"
+@using Product.Messages.Commands
+@using Product.Messages.Events.Models
+@using CQRS.Communication.Abstract
+@using CQRS.Communication.Enums
+@using Product.Messages.Queries
+@using WebCoreApp.Services
+@using Client.Messages.Models
+@using Client.Messages.Queries
+@using Client.Messages.Commands
+@layout AdminPanelLayout
+
+<MudContainer Class="my-2 py-2">
+    <MudPaper>
+        <MudTable Height="calc(100vh - 185px)" CanCancelEdit="true" MultiSelection="true" @bind-SelectedItems="selectedItems" @bind-SelectedItem="selectedBookItem"  Loading="clients == null" RowsPerPage="50" Hover="true" FixedFooter="true" FixedHeader="true" Items="@clients" Filter="new Func<ClientDetails, bool>(FilterFunc1)">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">Clients</MudText>
+                <MudSpacer />
+                <MudTextField @bind-Value="searchString1" Placeholder="Search clients" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"></MudTextField>
+            </ToolBarContent>
+            <ColGroup>
+                <col style="width: 10%;" />
+                <col style="width: 10%;" />
+                <col style="width: 10%;" />
+                <col style="width: 10%;" />
+                <col style="width: 10%;" />
+                <col style="width: 10%;" />
+                <col style="width: 10%;" />
+                <col style="width: 10%;" />
+                <col style="width: 10%;" />
+                <col style="width: 10%;" />
+                <col  />
+            </ColGroup>
+            <HeaderContent>
+                <MudTh><MudTableSortLabel SortBy="new Func<ClientDetails, object>(x=>x.Name)">Name</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<ClientDetails, object>(x=>x.Surname)">Surname</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<ClientDetails, object>(x=>x.DateOfBirth)">DateOfBirth</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<ClientDetails, object>(x=>x.Street)">Street</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<ClientDetails, object>(x=>x.City)">City</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<ClientDetails, object>(x=>x.Region)">Region</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<ClientDetails, object>(x=>x.PostalCode)">PostalCode</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<ClientDetails, object>(x=>x.Country)">Country</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<ClientDetails, object>(x=>x.Phone)">Phone</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<ClientDetails, object>(x=>x.IsBlocked)">IsBlocked</MudTableSortLabel></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Name">@context.Name</MudTd>
+                <MudTd DataLabel="Surname">@context.Surname</MudTd>
+                <MudTd DataLabel="DateOfBirth" >@context.DateOfBirth</MudTd>
+                <MudTd DataLabel="Street">@context.Street</MudTd>
+                <MudTd DataLabel="City"> @context.City </MudTd>
+                <MudTd DataLabel="Region"> @context.Region </MudTd>
+                <MudTd DataLabel="PostalCode"> @context.PostalCode </MudTd>
+                <MudTd DataLabel="Country"> @context.Country </MudTd>
+                <MudTd DataLabel="Phone"> @context.Phone </MudTd>
+                <MudTd DataLabel="IsBlocked"> @context.IsBlocked </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    </MudPaper>
+    <MudPaper Class="my-2 mx-3">
+            <MudIconButton Elevation="6" Color="Color.Secondary" Disabled="!selectedItems.Any()" OnClick="@(() => HideClients())" Icon="@Icons.Material.Filled.HideSource" aria-label="hide"></MudIconButton>
+            <MudIconButton Elevation="6" Color="Color.Secondary" Disabled="!selectedItems.Any()" OnClick="@(() => UnHideClients())" Icon="@Icons.Material.Filled.Unarchive" aria-label="unhide"></MudIconButton>
+        </MudPaper>
+    </MudContainer>
+
+@inject IRestDispatcher restDispatcher
+@inject SuccessHandlerService SuccessHandlerService
+@inject ErrorHandlerService ErrorHandlerService
+@code {
+    private IEnumerable<ClientDetails> clients;
+    private string searchString1 = "";
+    private HashSet<ClientDetails> selectedItems = new HashSet<ClientDetails>();
+    private ClientDetails selectedBookItem = null;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        clients = await restDispatcher.DispatchQuery(new GetClientsQuery(), EndpointEnum.ClientEndpoint);
+        StateHasChanged();
+    }
+    
+    private bool FilterFunc1(ClientDetails clientDetails) => FilterFunc(clientDetails, searchString1);
+
+    private bool FilterFunc(ClientDetails clientDetails, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (clientDetails.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (clientDetails.Surname.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if ($"{clientDetails.Name} {clientDetails.Surname}".Contains(searchString))
+            return true;
+        return false;
+    }
+
+    private async Task HideClients()
+    {
+        try
+        {
+            foreach (var client in selectedItems)
+            {
+                await restDispatcher.DispatchCommand(new ChangeClientBlockadeStatusCommand() { ClientId = client.Id, BlockClient = true}, EndpointEnum.ClientEndpoint);
+            }
+            
+            clients = await restDispatcher.DispatchQuery(new GetClientsQuery(), EndpointEnum.ClientEndpoint);
+            
+            SuccessHandlerService.ShowSuccess("Clients hidden!");
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            ErrorHandlerService.ShowError("Operation failed");
+        }
+    }
+    
+    private async Task UnHideClients()
+    {
+        try
+        {
+            foreach (var client in selectedItems)
+            {
+                await restDispatcher.DispatchCommand(new ChangeClientBlockadeStatusCommand() { ClientId = client.Id, BlockClient = false}, EndpointEnum.ClientEndpoint);
+            }
+            
+            clients = await restDispatcher.DispatchQuery(new GetClientsQuery(), EndpointEnum.ClientEndpoint);
+            
+            SuccessHandlerService.ShowSuccess("Clients hidden!");
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            ErrorHandlerService.ShowError("Operation failed");
+        }
+    }
+
+}

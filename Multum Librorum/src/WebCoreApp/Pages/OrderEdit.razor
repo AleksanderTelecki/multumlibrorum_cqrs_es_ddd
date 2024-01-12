@@ -1,0 +1,140 @@
+﻿@page "/editorder"
+@using Product.Messages.Commands
+@using Product.Messages.Events.Models
+@using CQRS.Communication.Abstract
+@using CQRS.Communication.Enums
+@using Product.Messages.Queries
+@using Sales.Messages.Commands
+@using Sales.Messages.Enums
+@using Sales.Messages.Models
+@using Sales.Messages.Queries
+@using WebCoreApp.Services
+@layout AdminPanelLayout
+
+<MudContainer Class="my-2 py-2">
+    <MudPaper>
+        <MudTable MultiSelection="true" @bind-SelectedItems="selectedItems" @bind-SelectedItem="selectedOrderItem" Items="@Orders"  Hover="true" Breakpoint="Breakpoint.Sm">
+        <ToolBarContent>
+                    <MudText Typo="Typo.h6">Orders</MudText>
+                    <MudSpacer />
+                </ToolBarContent>
+        	<ColGroup>
+        		<col />
+        		<col />
+        		<col />
+        		<col />
+        	</ColGroup>
+        	<HeaderContent>
+        		<MudTh></MudTh>
+        		<MudTh>Order Id</MudTh>
+        		<MudTh>Order State</MudTh>
+        	</HeaderContent>
+        	<RowTemplate>
+        		<MudTd><MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => ShowBtnPress(context.OrderModel.OrderId))">@((context.ShowDetails == true)? "Hide" : "Show") Order Details</MudButton></MudTd>
+        		<MudTd DataLabel="Order Id">@context.OrderModel.OrderId</MudTd>
+        		<MudTd DataLabel="Order State">@context.OrderModel.State.ToString()</MudTd>
+        	</RowTemplate>
+        	<ChildRowContent>
+        		@if (context.ShowDetails)
+        		{
+        			<MudTr>
+        				<td colspan="4">
+        					<MudCard Elevation="0">
+        						<MudCardHeader>
+        							<CardHeaderContent>
+        								<MudText Typo="Typo.body1">Order Details</MudText>
+        							</CardHeaderContent>
+        						</MudCardHeader>
+        						<MudCardContent Class="pa-0">
+        							<MudTable Items="@context.OrderModel.Items" Context="OrderItemContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
+        								<ColGroup>
+        									<col />
+        									<col />
+        									<col />
+        								</ColGroup>
+        								<HeaderContent>
+        									<MudTh>Product Name</MudTh>
+        									<MudTh>Product Price</MudTh>
+        									<MudTh>Quantity</MudTh>
+        								</HeaderContent>
+        								<RowTemplate>
+        									<MudTd DataLabel="Product Name">@OrderItemContext.ProductName</MudTd>
+        									<MudTd DataLabel="Product Price">$ @OrderItemContext.ProductPrice</MudTd>
+        									<MudTd DataLabel="Quantity">@OrderItemContext.Quantity</MudTd>
+        								</RowTemplate>
+        								<FooterContent>
+        									<MudTd>Price Sum: $ @context.OrderModel.Items.Sum(x=>x.ProductPrice)</MudTd>
+        								</FooterContent>
+        							</MudTable>
+        						</MudCardContent>
+        					</MudCard>
+        				</td>
+        			</MudTr>
+        		}
+        	</ChildRowContent>
+        </MudTable>
+    </MudPaper>
+    <MudPaper Class="my-2 mx-3">
+            <MudButton Elevation="6" Color="Color.Secondary" Disabled="!selectedItems.Any()" OnClick="@(() => MarkAsRealized())"> Mark as Realized</MudButton>
+        </MudPaper>
+    </MudContainer>
+
+@inject IRestDispatcher RestDispatcher
+@inject SuccessHandlerService SuccessHandlerService
+@inject ErrorHandlerService ErrorHandlerService
+@code
+{
+
+	public class OrderWraper
+	{
+		public OrderModel OrderModel { get; set; }
+		public bool ShowDetails { get; set; }
+	}
+	
+	private List<OrderWraper> Orders = new List<OrderWraper>();
+	private HashSet<OrderWraper> selectedItems = new HashSet<OrderWraper>();
+	private OrderWraper selectedOrderItem = null;
+	
+	protected override async Task OnInitializedAsync()
+	{
+		var orders = await RestDispatcher.DispatchQuery(new GetOrdersQuery(), EndpointEnum.SalesEndpoint);
+
+		foreach (var order in orders)
+		{
+			Orders.Add(new OrderWraper() {OrderModel = order});
+		}
+	}
+
+	private void ShowBtnPress(Guid orderId)
+	{
+		var tmpOrder = Orders.First(x=>x.OrderModel.OrderId == orderId);
+		tmpOrder.ShowDetails = !tmpOrder.ShowDetails;
+	}
+
+	private async Task MarkAsRealized()
+	{
+		try
+		{
+			foreach (var order in selectedItems)
+			{
+				await RestDispatcher.DispatchCommand(new ChangeOrderStateCommand() {OrderId = order.OrderModel.OrderId, OrderState = OrderState.Realized}, EndpointEnum.SalesEndpoint);
+			}
+			
+			Orders = new List<OrderWraper>();
+			
+			var orders = await RestDispatcher.DispatchQuery(new GetOrdersQuery(), EndpointEnum.SalesEndpoint);
+
+			foreach (var order in orders)
+			{
+				Orders.Add(new OrderWraper() {OrderModel = order});
+			}
+			
+			SuccessHandlerService.ShowSuccess("Orders was marked as realized!");
+			StateHasChanged();
+		}
+		catch (Exception e)
+		{
+			ErrorHandlerService.ShowError("Operation failed");
+		}
+	}
+}

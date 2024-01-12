@@ -24,6 +24,7 @@
       <ProjectReference Include="..\Employee.Messages\Employee.Messages.csproj" />
       <ProjectReference Include="..\Payment.Messages\Payment.Messages.csproj" />
       <ProjectReference Include="..\Product.Messages\Product.Messages.csproj" />
+      <ProjectReference Include="..\Promotion.Messages\Promotion.Messages.csproj" />
       <ProjectReference Include="..\Sales.Messages\Sales.Messages.csproj" />
     </ItemGroup>
 

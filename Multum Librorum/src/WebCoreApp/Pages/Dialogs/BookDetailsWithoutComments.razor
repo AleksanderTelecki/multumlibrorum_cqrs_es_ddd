@@ -1,0 +1,47 @@
+﻿@using Product.Messages.Events.Models
+
+
+<MudDialog Style="min-width: 100vh;">
+    <DialogContent>
+        <MudPaper Style="height: 100%;" Elevation="1" Class="py-5 px-5">
+            <MudText>
+                <b>Title:</b> @Book.Title
+            </MudText>
+            <MudText>
+                <b>Author:</b> @Book.Author
+            </MudText>
+            <MudText>
+                <b>Description:</b> @Book.Description
+            </MudText>
+            <MudText>
+                <b>Price:</b> @Book.Price
+            </MudText>
+            <MudText>
+                <b>Promoted Price:</b> @Book.PromotedPrice
+            </MudText>
+            <MudText>
+                <b>Page Count:</b> @Book.PageCount
+            </MudText>
+            <MudText>
+                <b>Qty:</b> @Book.Quantity
+            </MudText>
+            <MudText>
+                <b>RegDate:</b> @Book.RegDate
+            </MudText>
+        </MudPaper>
+    </DialogContent>
+    <DialogActions>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public BookModel Book { get; set; }
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        StateHasChanged();
+    }
+
+}

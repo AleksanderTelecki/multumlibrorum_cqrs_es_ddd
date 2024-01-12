@@ -1,0 +1,161 @@
+﻿@page "/editproduct"
+@using Product.Messages.Commands
+@using Product.Messages.Events.Models
+@using CQRS.Communication.Abstract
+@using CQRS.Communication.Enums
+@using Product.Messages.Queries
+@using WebCoreApp.Services
+@layout AdminPanelLayout
+
+<MudContainer Class="my-2 py-2">
+    <MudPaper>
+        <MudTable Height="calc(100vh - 185px)" CanCancelEdit="true" MultiSelection="true" @bind-SelectedItems="selectedItems" @bind-SelectedItem="selectedBookItem" RowEditCommit="ItemHasBeenCommitted"  Loading="books == null" RowsPerPage="50" Hover="true" FixedFooter="true" FixedHeader="true" Items="@books" Filter="new Func<BookModel, bool>(FilterFunc1)">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">Books</MudText>
+                <MudSpacer />
+                <MudTextField @bind-Value="searchString1" Placeholder="Search books" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"></MudTextField>
+            </ToolBarContent>
+            <ColGroup>
+                <col style="width: 10%;" />
+                <col style="width: 10%;" />
+                <col style="width: 10%;" />
+                <col style="width: 10%;" />
+                <col style="width: 10%;" />
+                <col style="width: 10%;" />
+                <col style="width: 20%;" />
+                <col style="width: 10%;" />
+                <col  />
+            </ColGroup>
+            <HeaderContent>
+                <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.Title)">Title</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.Author)">Author</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.Price)">Price</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.PromotedPrice)">Promoted Price</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.PageCount)">Page Count</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.Quantity)">Quantity</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.Description)">Description</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.IsHidden)">Is Hidden</MudTableSortLabel></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Title">@context.Title</MudTd>
+                <MudTd DataLabel="Author">@context.Author</MudTd>
+                <MudTd DataLabel="Price"  >$ @context.Price</MudTd>
+                <MudTd DataLabel="Promoted Price" Style="color: green;" >@(context.PromotedPrice != null ? $"$ {context.PromotedPrice}" : "")</MudTd>
+                <MudTd DataLabel="Page Count"> @context.PageCount </MudTd>
+                <MudTd DataLabel="Quantity"> @context.Quantity </MudTd>
+                <MudTd DataLabel="Description"> @context.Description </MudTd>
+                <MudTd DataLabel="Is Hidden"> @context.IsHidden </MudTd>
+            </RowTemplate>
+            <RowEditingTemplate>
+                <MudTd DataLabel="Title">
+                   <MudTextField @bind-Value="@context.Title" Required />
+                </MudTd>
+                <MudTd DataLabel="Author">
+                    <MudTextField @bind-Value="@context.Author" Required />
+                </MudTd>
+                <MudTd DataLabel="Price">
+                    <MudTextField T="decimal" @bind-Value="@context.Price" Required />
+                </MudTd>
+                <MudTd DataLabel="Promoted Price" Style="color: green;">
+                    @(context.PromotedPrice != null ? $"$ {context.PromotedPrice}" : "")
+                </MudTd>
+                <MudTd DataLabel="Page Count">
+                    <MudTextField T="int" @bind-Value="@context.PageCount" Required />
+                </MudTd>
+                <MudTd DataLabel="Quantity">
+                    <MudTextField T="int" @bind-Value="@context.Quantity" Required />
+                </MudTd>
+                <MudTd DataLabel="Description">
+                    <MudTextField @bind-Value="@context.Description" Required />
+                </MudTd>
+                <MudTd DataLabel="Is Hidden" Style="color: green;">
+                    @context.IsHidden
+                </MudTd>
+            </RowEditingTemplate>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    </MudPaper>
+    <MudPaper Class="my-2 mx-3">
+            <MudIconButton Elevation="6" Color="Color.Secondary" Disabled="!selectedItems.Any()" OnClick="@(() => HideBooks())" Icon="@Icons.Material.Filled.HideSource" aria-label="hide"></MudIconButton>
+        </MudPaper>
+    </MudContainer>
+
+@inject IRestDispatcher restDispatcher
+@inject IDialogService Dialog
+@inject SuccessHandlerService SuccessHandlerService
+@inject ErrorHandlerService ErrorHandlerService
+@code {
+    private IEnumerable<BookModel> books;
+    private string searchString1 = "";
+    private HashSet<BookModel> selectedItems = new HashSet<BookModel>();
+    private BookModel selectedBookItem = null;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        books = await restDispatcher.DispatchQuery(new GetAllBooksQuery(), EndpointEnum.ProductEndpoint);
+        StateHasChanged();
+    }
+    
+    private bool FilterFunc1(BookModel bookModel) => FilterFunc(bookModel, searchString1);
+
+    private bool FilterFunc(BookModel bookModel, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (bookModel.Title.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (bookModel.Author.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if ($"{bookModel.Author} {bookModel.Title} {bookModel.Description}".Contains(searchString))
+            return true;
+        return false;
+    }
+
+    private void ItemHasBeenCommitted(object bookItem)
+    {
+        var item = (BookModel)bookItem;
+        
+        Task.Run(async () => 
+        {
+            try
+            {
+                await restDispatcher.DispatchCommand(new UpdateBookDetailsCommand() { Id = item.Id, Author = item.Author, Title = item.Title, PageCount = item.PageCount, Description = item.Description}, EndpointEnum.ProductEndpoint);
+                await restDispatcher.DispatchCommand(new UpdateBookPriceCommand() { Id = item.Id, Price = item.Price}, EndpointEnum.ProductEndpoint);
+                await restDispatcher.DispatchCommand(new UpdateBookQuantityCommand() { Id = item.Id, Quantity = item.Quantity}, EndpointEnum.ProductEndpoint);
+                
+                SuccessHandlerService.ShowSuccess("Book item has been changed!");
+                
+                books = await restDispatcher.DispatchQuery(new GetAllBooksQuery(), EndpointEnum.ProductEndpoint);
+                StateHasChanged();
+            }
+            catch (Exception e)
+            {
+                ErrorHandlerService.ShowError("Operation failed");
+            }
+             
+         }).ConfigureAwait(false);
+    }
+
+    private async Task HideBooks()
+    {
+        try
+        {
+            foreach (var book in selectedItems)
+            {
+                await restDispatcher.DispatchCommand(new HideBookCommand() { Id = book.Id}, EndpointEnum.ProductEndpoint);
+            }
+            
+            SuccessHandlerService.ShowSuccess("Books deleted!");
+            
+            books = await restDispatcher.DispatchQuery(new GetAllBooksQuery(), EndpointEnum.ProductEndpoint);
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            ErrorHandlerService.ShowError("Operation failed");
+        }
+    }
+
+}

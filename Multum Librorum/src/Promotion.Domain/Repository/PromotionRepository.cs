@@ -45,7 +45,7 @@ namespace Promotion.Domain.Repository
 
         public async Task<List<PromotionEntity>> GetAllPromotions()
         {
-            return await _promotionDomainDataContext.Promotions.AsNoTracking().ToListAsync();
+            return await _promotionDomainDataContext.Promotions.Include(x=>x.Products).AsNoTracking().ToListAsync();
         }
     }
 }

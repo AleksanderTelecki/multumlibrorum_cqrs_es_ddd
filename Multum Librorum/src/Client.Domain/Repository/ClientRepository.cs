@@ -7,6 +7,7 @@ namespace Client.Domain.Repository
     {
         public Task CreateClient(ClientEntity user);
         public Task<ClientEntity> GetClient(Guid id);
+        public Task<List<ClientEntity>> GetClients();
         public Task<ClientEntity> GetClientByEmail(string email);
         public Task UpdateClient(ClientEntity user);
     }
@@ -29,6 +30,11 @@ namespace Client.Domain.Repository
         public async Task<ClientEntity> GetClient(Guid id)
         {
             return await _userDomainDataContext.Users.FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<List<ClientEntity>> GetClients()
+        {
+            return await _userDomainDataContext.Users.ToListAsync();
         }
 
         public async Task<ClientEntity> GetClientByEmail(string email)

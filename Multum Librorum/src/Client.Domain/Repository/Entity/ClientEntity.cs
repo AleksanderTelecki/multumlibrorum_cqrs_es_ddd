@@ -26,6 +26,8 @@ namespace Client.Domain.Repository.Entity
         public string Country { get; set; }
         public string Phone { get; set; }
         public DateTime RegDate { get; set; }
+        
+        public bool IsBlocked { get; set; } 
 
         public ClientEntity()
         {

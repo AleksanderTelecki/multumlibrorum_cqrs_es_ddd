@@ -1,0 +1,151 @@
+﻿@page "/addproduct"
+@using Product.Messages.Commands
+@using Product.Messages.Events.Models
+@using WebCoreApp.Pages.Dialogs
+@using CQRS.Communication.Abstract
+@using CQRS.Communication.Enums
+@using Product.Messages.Queries
+@using WebCoreApp.Services
+@layout AdminPanelLayout
+
+<MudContainer Class="my-2 py-2">
+<MudGrid>
+    <MudItem xs="12" sm="4">
+        <MudPaper Class="pa-4">
+                    <MudForm Model="@_bookCommand" @ref="form">
+                        <MudTextField @bind-Value="_bookCommand.Title" Immediate="true" For="@(() => _bookCommand.Title)" T="string" Label="Title" Required="true" RequiredError="Title name is required!" />
+                        <MudTextField @bind-Value="_bookCommand.Author" Immediate="true" For="@(() => _bookCommand.Author)" T="string" Label="Author" Required="true" RequiredError="Author is required!" />
+                        <MudTextField @bind-Value="_bookCommand.PageCount" Immediate="true" For="@(() => _bookCommand.PageCount)" T="int" Required="true" RequiredError="Page count is required!" Label="Page Count" />
+                        <MudTextField
+                            @bind-Value="_bookCommand.Description"
+                            T="string"
+                            For="@(() => _bookCommand.Description)"
+                            Immediate="true"
+                            Required="true"
+                            Lines="3"
+                            RequiredError="Description is required!"
+                            Label="Description"/>
+                        <MudTextField
+                            @bind-Value="_bookCommand.Price"
+                            T="decimal"
+                            For="@(() => _bookCommand.Price)"
+                            Immediate="true"
+                            Required="true"
+                            RequiredError="Price is required!"
+                            Label="Price"/>
+                        <MudTextField
+                            @bind-Value="_bookCommand.Quantity"
+                            T="int"
+                            For="@(() => _bookCommand.Quantity)"
+                            Immediate="true"
+                            Required="true"
+                            RequiredError="Quantity is required!"
+                            Label="Quantity"/>
+                    </MudForm> 
+                    <MudButton Class="mt-2" Variant="Variant.Filled" Color="Color.Primary" Disabled="!form.IsValid" DisableElevation="true" OnClick="@(()=>AddNewProduct())">Add Product</MudButton>
+                </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="8">
+        <MudPaper Class="pa-4 mud-height-full">
+            <MudTable Loading="books == null" RowsPerPage="10" Hover="true" FixedFooter="true" FixedHeader="true" Items="@books" Filter="new Func<BookModel, bool>(FilterFunc1)">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h6">Books</MudText>
+                            <MudSpacer />
+                            <MudTextField @bind-Value="searchString1" Placeholder="Search books" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"></MudTextField>
+                        </ToolBarContent>
+                        <ColGroup>
+                                <col style="width: 10%;" />
+                                <col style="width: 10%;" />
+                                <col style="width: 10%;" />
+                                <col style="width: 10%;" />
+                                <col style="width: 10%;" />
+                                <col style="width: 10%;" />
+                                <col  />
+                        </ColGroup>
+                        <HeaderContent>
+                            <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.Title)">Title</MudTableSortLabel></MudTh>
+                            <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.Author)">Author</MudTableSortLabel></MudTh>
+                            <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.Price)">Price</MudTableSortLabel></MudTh>
+                            <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.PromotedPrice)">Promoted Price</MudTableSortLabel></MudTh>
+                            <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.PageCount)">Page Count</MudTableSortLabel></MudTh>
+                            <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.Quantity)">Quantity</MudTableSortLabel></MudTh>
+                            <MudTh></MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Title">@context.Title</MudTd>
+                            <MudTd DataLabel="Author">@context.Author</MudTd>
+                            <MudTd DataLabel="Price"  >$ @context.Price</MudTd>
+                            <MudTd DataLabel="Promoted Price" Style="color: green;" >@(context.PromotedPrice != null ? $"$ {context.PromotedPrice}" : "")</MudTd>
+                            <MudTd DataLabel="Page Count"> @context.PageCount </MudTd>
+                            <MudTd DataLabel="Quantity"> @context.Quantity </MudTd>
+                            <MudTd Style="text-align:center">
+                                <MudButton Variant="Variant.Outlined" OnClick="@((e) => OpenDialog(context))" Size="Size.Small">Details</MudButton>
+                            </MudTd>
+                        </RowTemplate>
+                        <PagerContent>
+                            <MudTablePager />
+                        </PagerContent>
+                    </MudTable>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+</MudContainer>
+
+@inject IRestDispatcher restDispatcher
+@inject IDialogService Dialog
+@inject SuccessHandlerService SuccessHandlerService
+@inject ErrorHandlerService ErrorHandlerService
+@code {
+    private AddBookCommand _bookCommand = new AddBookCommand();
+    MudForm form = new MudForm();
+    private IEnumerable<BookModel> books;
+    private string searchString1 = "";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        books = await restDispatcher.DispatchQuery(new GetAllBooksQuery(), EndpointEnum.ProductEndpoint);
+        StateHasChanged();
+    }
+
+    private async Task AddNewProduct()
+    {
+        try
+        {
+            await restDispatcher.DispatchCommand(_bookCommand, EndpointEnum.ProductEndpoint);
+            SuccessHandlerService.ShowSuccess("Book Added!");
+            _bookCommand = new AddBookCommand();
+            books = await restDispatcher.DispatchQuery(new GetAllBooksQuery(), EndpointEnum.ProductEndpoint);
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            ErrorHandlerService.ShowError("Operation failed!");
+        }
+    }
+    
+    private bool FilterFunc1(BookModel bookModel) => FilterFunc(bookModel, searchString1);
+
+    private bool FilterFunc(BookModel bookModel, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (bookModel.Title.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (bookModel.Author.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if ($"{bookModel.Author} {bookModel.Title} {bookModel.Description}".Contains(searchString))
+            return true;
+        return false;
+    }
+    
+    private void OpenDialog(BookModel bookModel)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("Book", bookModel);
+
+        var options = new DialogOptions() { FullWidth = true, CloseButton = true };
+        Dialog.Show<BookDetailsWithoutComments>("Book details dialog", parameters, options);
+    }
+
+}

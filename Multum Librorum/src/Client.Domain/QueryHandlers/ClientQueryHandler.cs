@@ -14,7 +14,8 @@ namespace Client.Domain.QueryHandlers
 {
     public class ClientQueryHandler : 
         IQueryHandler<GetClientByEmailQuery, ClientInfo>,
-        IQueryHandler<GetClientDetailsQuery, ClientDetails>
+        IQueryHandler<GetClientDetailsQuery, ClientDetails>,
+        IQueryHandler<GetClientsQuery, List<ClientDetails>>
     {
 
         private readonly IClientRepository _userRepository;
@@ -29,6 +30,9 @@ namespace Client.Domain.QueryHandlers
             var userEntity = await _userRepository.GetClientByEmail(query.Email);
 
             if (userEntity == null)
+                return null;
+            
+            if (userEntity.IsBlocked == true)
                 return null;
 
             return new ClientInfo { 
@@ -56,9 +60,38 @@ namespace Client.Domain.QueryHandlers
                 Street = userEntity.Street,
                 City = userEntity.City,
                 Region = userEntity.Region,
-                Country = userEntity.Country
+                Country = userEntity.Country,
+                IsBlocked = userEntity.IsBlocked
             };
             
+        }
+
+        public async Task<List<ClientDetails>> Handle(GetClientsQuery query, CancellationToken cancellationToken)
+        {
+            var userEntitys = await _userRepository.GetClients();
+            
+            List<ClientDetails> clientDetailsList = new();
+            
+            foreach (var userEntity in userEntitys)
+            {
+                clientDetailsList.Add(
+                    new ClientDetails() { 
+                        Id = userEntity.Id,
+                        Surname = userEntity.Surname,
+                        Name = userEntity.Name,
+                        Phone = userEntity.Phone,
+                        PostalCode = userEntity.PostalCode,
+                        DateOfBirth = userEntity.DateOfBirth,
+                        Street = userEntity.Street,
+                        City = userEntity.City,
+                        Region = userEntity.Region,
+                        Country = userEntity.Country,
+                        IsBlocked = userEntity.IsBlocked
+                    }
+                );
+            }
+            
+            return clientDetailsList;
         }
     }
 }

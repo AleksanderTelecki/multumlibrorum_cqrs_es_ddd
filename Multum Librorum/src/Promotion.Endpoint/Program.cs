@@ -9,6 +9,7 @@ using Marten.EventSourcing.Core;
 using Promotion.Domain;
 using Weasel.Core;
 using CQRS.Core.Extensions;
+using CQRS.Web.Extensions;
 using KafkaFlow.Serializer;
 using Microsoft.EntityFrameworkCore;
 using Promotion.Domain.Repository;
@@ -96,9 +97,20 @@ builder.Services.AddHostedService<KafkaConsumerHostedService>();
 builder.Services.AddHostedService<CheckPromotionsHostedService>();
 
 builder.Services.AddControllers();
+builder.Services.AddRestController(builder.Configuration);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("MyCorsPolicy", builder =>
+    {
+        builder.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
@@ -109,6 +121,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("MyCorsPolicy");
 
 app.UseHttpsRedirection();
 

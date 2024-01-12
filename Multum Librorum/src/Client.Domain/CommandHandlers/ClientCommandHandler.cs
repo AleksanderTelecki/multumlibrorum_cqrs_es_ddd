@@ -16,7 +16,8 @@ namespace Client.Domain.CommandHandlers
     public class ClientCommandHandler :
         ICommandHandler<RegisterUserCommand>,
         ICommandHandler<UpdateProfileInfoCommand>,
-        ICommandHandler<ChangeUserPasswordCommand>
+        ICommandHandler<ChangeUserPasswordCommand>,
+        ICommandHandler<ChangeClientBlockadeStatusCommand>
     {
 
         private readonly IAggregateRepository _aggregateRepository;
@@ -75,6 +76,22 @@ namespace Client.Domain.CommandHandlers
 
             user.ChangePassword(command.NewPassword);
 
+            await _aggregateRepository.StoreAsync(user);
+        }
+
+        public async Task Handle(ChangeClientBlockadeStatusCommand command, CancellationToken cancellation)
+        {
+            var user = await _aggregateRepository.LoadAsync<Aggregates.Client>(command.ClientId);
+
+            if (command.BlockClient)
+            {
+                user.Block();
+            }
+            else
+            {
+                user.UnBlock();
+            }
+            
             await _aggregateRepository.StoreAsync(user);
         }
     }

@@ -17,6 +17,8 @@ namespace Client.Domain.Aggregates
         public string Country { get; private set; }
         public string Phone { get; private set; }
         public DateTime RegDate { get; private set; }
+        
+        public bool IsBlocked { get; private set; } 
 
         public Client()
         {
@@ -62,6 +64,22 @@ namespace Client.Domain.Aggregates
                 PostalCode = postalCode,
                 Country = country,
                 Phone = phone,
+            });
+        }
+
+        public void Block()
+        {
+            RaiseEvent(new ClientBlockedEvent()
+            {
+                Id = Id
+            });
+        }
+        
+        public void UnBlock()
+        {
+            RaiseEvent(new ClientUnBlockedEvent()
+            {
+                Id = Id
             });
         }
 
@@ -112,6 +130,20 @@ namespace Client.Domain.Aggregates
             PostalCode = @event.PostalCode;
             Country = @event.Country;
             Phone = @event.Phone;
+
+            Version++;
+        }
+        
+        public void Apply(ClientBlockedEvent @event)
+        {
+            IsBlocked = true;
+
+            Version++;
+        }
+        
+        public void Apply(ClientUnBlockedEvent @event)
+        {
+            IsBlocked = false;
 
             Version++;
         }

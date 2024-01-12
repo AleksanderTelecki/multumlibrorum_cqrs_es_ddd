@@ -1,0 +1,147 @@
+﻿@page "/editpromo"
+@using WebCoreApp.Abstract
+@using WebCoreApp.Services
+@using CQRS.Communication.Abstract
+@using Client.Messages.Models
+@using CQRS.Communication.Enums
+@using Promotion.Messages.Commands
+@using Promotion.Messages.Models
+@using Promotion.Messages.Queries
+@using Sales.Messages.Models
+@using Sales.Messages.Queries
+@layout AdminPanelLayout
+
+<MudContainer Class="my-2 py-2">
+	<MudTable MultiSelection="true" @bind-SelectedItems="selectedItems" @bind-SelectedItem="selectedPromotionItem" Items="@Promotions"  Hover="true" Breakpoint="Breakpoint.Sm">
+		<ToolBarContent>
+			<MudText Typo="Typo.h6">Promotions</MudText>
+			<MudSpacer />
+		</ToolBarContent>
+		<ColGroup>
+			<col />
+			<col />
+			<col />
+			<col />
+			<col />
+			<col />
+			<col />
+		</ColGroup>
+		<HeaderContent>
+			<MudTh></MudTh>
+			<MudTh>Promotion Id</MudTh>
+			<MudTh>Promotion Description</MudTh>
+			<MudTh>Promotion Percentage</MudTh>
+			<MudTh>Is Active</MudTh>
+			<MudTh>Regdate</MudTh>
+			<MudTh>End Date</MudTh>
+		</HeaderContent>
+		<RowTemplate>
+			<MudTd><MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => ShowBtnPress(context.PromotionModel.Id))">@((context.ShowDetails == true)? "Hide" : "Show") Promotion Details</MudButton></MudTd>
+			<MudTd DataLabel="Promotion Id">@context.PromotionModel.Id</MudTd>
+			<MudTd DataLabel="Promotion Description">@context.PromotionModel.Description</MudTd>
+			<MudTd DataLabel="Promotion Percentage">@context.PromotionModel.PromotionInPercentage</MudTd>
+			<MudTd DataLabel="Is Active">@context.PromotionModel.IsActive</MudTd>
+			<MudTd DataLabel="Regdate">@context.PromotionModel.Regdate</MudTd>
+			<MudTd DataLabel="End Date">@context.PromotionModel.EndDate</MudTd>
+		</RowTemplate>
+		<ChildRowContent>
+			@if (context.ShowDetails)
+			{
+				<MudTr>
+					<td colspan="4">
+						<MudCard Elevation="0">
+							<MudCardHeader>
+								<CardHeaderContent>
+									<MudText Typo="Typo.body1">Order Details</MudText>
+								</CardHeaderContent>
+							</MudCardHeader>
+							<MudCardContent Class="pa-0">
+								<MudTable Items="@context.PromotionModel.Products" Context="PromoItemContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
+									<ColGroup>
+										<col />
+										<col />
+									</ColGroup>
+									<HeaderContent>
+										<MudTh>Product Id</MudTh>
+										<MudTh>Product Name</MudTh>
+									</HeaderContent>
+									<RowTemplate>
+										<MudTd DataLabel="Product Id">@PromoItemContext.Id</MudTd>
+										<MudTd DataLabel="Product Name">@PromoItemContext.ProductName</MudTd>
+									</RowTemplate>
+								</MudTable>
+							</MudCardContent>
+						</MudCard>
+					</td>
+				</MudTr>
+			}
+		</ChildRowContent>
+	</MudTable>
+	<MudPaper Class="my-2 mx-3">
+		<MudIconButton Elevation="6" Color="Color.Secondary" Disabled="!selectedItems.Any()" OnClick="@(() => DeActivatepromotion())" Icon="@Icons.Material.Filled.HideSource" aria-label="hide"></MudIconButton>
+	</MudPaper>
+</MudContainer>
+
+@inject ILoginService LoginService
+@inject IRestDispatcher RestDispatcher
+@inject SuccessHandlerService SuccessHandlerService
+@inject ErrorHandlerService ErrorHandlerService
+@code
+{
+
+	public class PromoWrapper
+	{
+		public PromotionModel PromotionModel { get; set; }
+		public bool ShowDetails { get; set; }
+	}
+	
+	private HashSet<PromoWrapper> selectedItems = new HashSet<PromoWrapper>();
+	private PromoWrapper selectedPromotionItem = null;
+	private List<PromoWrapper> Promotions = new List<PromoWrapper>();
+	private string searchString = "";
+	
+	protected override async Task OnInitializedAsync()
+	{
+		var promotions = await RestDispatcher.DispatchQuery(new GetPromotionsQuery(), EndpointEnum.PromotionEndpoint);
+
+		foreach (var promo in promotions)
+		{
+			Promotions.Add(new PromoWrapper() {PromotionModel = promo});
+		}
+	}
+	
+
+	private void ShowBtnPress(Guid promoId)
+	{
+		var tmpOrder = Promotions.First(x=>x.PromotionModel.Id == promoId);
+		tmpOrder.ShowDetails = !tmpOrder.ShowDetails;
+	}
+
+	private async Task DeActivatepromotion()
+	{
+		try
+		{
+			foreach (var promo in selectedItems)
+			{
+				await RestDispatcher.DispatchCommand(new PromotionEndedCommand() { Id = promo.PromotionModel.Id}, EndpointEnum.PromotionEndpoint);
+			}
+            
+			
+
+			Promotions = new List<PromoWrapper>();
+			var promotions= await RestDispatcher.DispatchQuery(new GetPromotionsQuery(), EndpointEnum.PromotionEndpoint);
+			
+			foreach (var promo in promotions)
+			{
+				Promotions.Add(new PromoWrapper() {PromotionModel = promo});
+			}
+			
+			SuccessHandlerService.ShowSuccess("Promotion ended!");
+			StateHasChanged();
+		}
+		catch (Exception e)
+		{
+			ErrorHandlerService.ShowError("Operation failed");
+		}
+	}
+}

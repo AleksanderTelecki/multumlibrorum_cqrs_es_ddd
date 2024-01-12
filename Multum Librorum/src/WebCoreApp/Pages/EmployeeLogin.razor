@@ -43,12 +43,19 @@
     MudTextField<string> pwField2;
     MudForm form;
 
+    protected override async Task OnInitializedAsync()
+    {
+        if (await LoginService.IsEmployeeLogin() != null)
+        {
+            NavigationManager.NavigateTo($"/addproduct", true); 
+        }
+    }
+
     public async Task Login()
     {
         if (await LoginService.LoginEmployee( pwField2.Text, pwField1.Text))
         {
-            StateHasChanged();
-            NavigationManager.NavigateTo($"/adminp", true); 
+            NavigationManager.NavigateTo($"/addproduct", true); 
         }
     }
 

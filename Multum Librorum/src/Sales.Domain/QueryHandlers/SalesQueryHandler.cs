@@ -11,7 +11,8 @@ namespace Sales.Domain.QueryHandlers;
 public class SalesQueryHandler: 
     IQueryHandler<GetClientCartQuery, List<CartItemModel>>,
     IQueryHandler<GetClientCartIdQuery, Guid>,
-    IQueryHandler<GetClientOrdersModelQuery, List<OrderModel>>
+    IQueryHandler<GetClientOrdersModelQuery, List<OrderModel>>,
+    IQueryHandler<GetOrdersQuery, List<OrderModel>>
 {
     private readonly ICartRepository _cartRepository;
     private readonly IOrderRepository _orderRepository;
@@ -63,6 +64,39 @@ public class SalesQueryHandler:
         List<OrderModel> orderModels = new List<OrderModel>();
         
         foreach (var order in clietOrders)
+        {
+            orderModels.Add(new OrderModel() { OrderId = order.Id, ClientId = order.ClientId, State = order.State});
+
+            var orderModel = orderModels.Single(x => x.OrderId == order.Id);
+            
+            foreach (var orderItem in order.Items)
+            {
+                var productInfo =
+                    await _restDispatcher.DispatchQuery(new GetBookModelQuery() { ProductId = orderItem.ProductId },
+                        EndpointEnum.ProductEndpoint);
+
+                orderModel.Items.Add(new OrderItemModel()
+                {
+                    Id = orderItem.Id, 
+                    ProductId = productInfo.Id, 
+                    ProductName = productInfo.Title,
+                    ProductPrice = (productInfo.PromotedPrice ?? productInfo.Price) * orderItem.Quantity,
+                    Quantity = orderItem.Quantity
+                });
+            }
+            
+            
+        }
+
+        return orderModels;
+    }
+
+    public async Task<List<OrderModel>> Handle(GetOrdersQuery query, CancellationToken cancellationToken)
+    {
+        var orders = await _orderRepository.GetOrders();
+        List<OrderModel> orderModels = new List<OrderModel>();
+        
+        foreach (var order in orders)
         {
             orderModels.Add(new OrderModel() { OrderId = order.Id, ClientId = order.ClientId, State = order.State});
 

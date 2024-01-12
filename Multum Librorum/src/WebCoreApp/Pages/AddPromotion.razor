@@ -1,0 +1,136 @@
+﻿@page "/addpromo"
+@using Product.Messages.Commands
+@using Product.Messages.Events.Models
+@using WebCoreApp.Pages.Dialogs
+@using CQRS.Communication.Abstract
+@using CQRS.Communication.Enums
+@using Product.Messages.Queries
+@using Promotion.Messages.Commands
+@using WebCoreApp.Services
+@layout AdminPanelLayout
+
+<MudContainer Class="my-2 py-2">
+<MudGrid>
+    <MudItem xs="12" sm="4">
+        <MudPaper Class="pa-4">
+                    <MudForm Model="@_promoAddCommand" @ref="form">
+                        <MudTextField  Lines="3" @bind-Value="_promoAddCommand.Description" Immediate="true" For="@(() => _promoAddCommand.Description)" T="string" Label="Description" Required="true" RequiredError="Description is required!" />
+                        <MudDatePicker @bind-Date="promotionEndDate" Required="true" MinDate="DateTime.Now" For="@(() => promotionEndDate)" Label="Promotion End Date" />
+                        <MudTextField @bind-Value="_promoAddCommand.PromotionInPercentage" Immediate="true" For="@(() => _promoAddCommand.PromotionInPercentage)" T="decimal" Required="true" RequiredError="Promotion percentage is required!" Label="Promotion Percentage" />
+                    </MudForm> 
+                    <MudButton Class="mt-2" Variant="Variant.Filled" Color="Color.Primary" Disabled="!form.IsValid || !selectedItems.Any()" DisableElevation="true" OnClick="@(()=>AddNewPromo())">Add Promotion</MudButton>
+                </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="8">
+        <MudPaper Class="pa-4 mud-height-full">
+            <MudTable MultiSelection="true" @bind-SelectedItems="selectedItems" @bind-SelectedItem="selectedBookItem" Loading="books == null" RowsPerPage="10" Hover="true" FixedFooter="true" FixedHeader="true" Items="@books" Filter="new Func<BookModel, bool>(FilterFunc1)">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h6">Books</MudText>
+                            <MudSpacer />
+                            <MudTextField @bind-Value="searchString1" Placeholder="Search books" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"></MudTextField>
+                        </ToolBarContent>
+                        <ColGroup>
+                                <col style="width: 10%;" />
+                                <col style="width: 10%;" />
+                                <col style="width: 10%;" />
+                                <col style="width: 10%;" />
+                                <col style="width: 10%;" />
+                                <col style="width: 10%;" />
+                                <col  />
+                        </ColGroup>
+                        <HeaderContent>
+                            <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.Title)">Title</MudTableSortLabel></MudTh>
+                            <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.Author)">Author</MudTableSortLabel></MudTh>
+                            <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.Price)">Price</MudTableSortLabel></MudTh>
+                            <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.PromotedPrice)">Promoted Price</MudTableSortLabel></MudTh>
+                            <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.PageCount)">Page Count</MudTableSortLabel></MudTh>
+                            <MudTh><MudTableSortLabel SortBy="new Func<BookModel, object>(x=>x.Quantity)">Quantity</MudTableSortLabel></MudTh>
+                            <MudTh></MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Title">@context.Title</MudTd>
+                            <MudTd DataLabel="Author">@context.Author</MudTd>
+                            <MudTd DataLabel="Price"  >$ @context.Price</MudTd>
+                            <MudTd DataLabel="Promoted Price" Style="color: green;" >@(context.PromotedPrice != null ? $"$ {context.PromotedPrice}" : "")</MudTd>
+                            <MudTd DataLabel="Page Count"> @context.PageCount </MudTd>
+                            <MudTd DataLabel="Quantity"> @context.Quantity </MudTd>
+                            <MudTd Style="text-align:center">
+                                <MudButton Variant="Variant.Outlined" OnClick="@((e) => OpenDialog(context))" Size="Size.Small">Details</MudButton>
+                            </MudTd>
+                        </RowTemplate>
+                        <PagerContent>
+                            <MudTablePager />
+                        </PagerContent>
+                    </MudTable>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+</MudContainer>
+
+@inject IRestDispatcher restDispatcher
+@inject IDialogService Dialog
+@inject SuccessHandlerService SuccessHandlerService
+@inject ErrorHandlerService ErrorHandlerService
+@code {
+    private PromotionAddCommand _promoAddCommand = new PromotionAddCommand();
+    MudForm form = new MudForm();
+    DateTime? promotionEndDate;
+    private IEnumerable<BookModel> books;
+    private string searchString1 = "";
+    private HashSet<BookModel> selectedItems = new HashSet<BookModel>();
+    private BookModel selectedBookItem = null;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        books = await restDispatcher.DispatchQuery(new GetAllBooksQuery(), EndpointEnum.ProductEndpoint);
+        StateHasChanged();
+    }
+
+    private async Task AddNewPromo()
+    {
+        try
+        {
+            _promoAddCommand.Products = selectedItems.Select(x => x.Id).ToList();
+            _promoAddCommand.EndDate = promotionEndDate.Value;
+            
+            await restDispatcher.DispatchCommand(_promoAddCommand, EndpointEnum.PromotionEndpoint);
+            SuccessHandlerService.ShowSuccess("Promo Added!");
+            
+            _promoAddCommand = new PromotionAddCommand();
+            StateHasChanged();
+            
+            books = await restDispatcher.DispatchQuery(new GetAllBooksQuery(), EndpointEnum.ProductEndpoint);
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            ErrorHandlerService.ShowError("Operation failed!");
+        }
+    }
+    
+    private bool FilterFunc1(BookModel bookModel) => FilterFunc(bookModel, searchString1);
+
+    private bool FilterFunc(BookModel bookModel, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (bookModel.Title.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (bookModel.Author.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if ($"{bookModel.Author} {bookModel.Title} {bookModel.Description}".Contains(searchString))
+            return true;
+        return false;
+    }
+    
+    private void OpenDialog(BookModel bookModel)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("Book", bookModel);
+
+        var options = new DialogOptions() { FullWidth = true, CloseButton = true };
+        Dialog.Show<BookDetailsWithoutComments>("Book details dialog", parameters, options);
+    }
+
+}

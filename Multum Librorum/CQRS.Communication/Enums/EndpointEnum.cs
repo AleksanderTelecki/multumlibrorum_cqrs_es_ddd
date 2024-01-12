@@ -8,5 +8,6 @@ public enum EndpointEnum
     EmployeeEndpoint,
     PaymentEndpoint,
     ProductEndpoint,
-    SalesEndpoint
+    SalesEndpoint,
+    PromotionEndpoint
 }

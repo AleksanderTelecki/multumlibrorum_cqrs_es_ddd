@@ -8,7 +8,9 @@ namespace Client.Domain.EventHandlers
     public class ClientEventHandler :
         IEventHandler<ClientRegisteredEvent>,
         IEventHandler<ClientProfileInfoUpdatedEvent>,
-        IEventHandler<ClientPasswordChangedEvent>
+        IEventHandler<ClientPasswordChangedEvent>,
+        IEventHandler<ClientBlockedEvent>,
+        IEventHandler<ClientUnBlockedEvent>
     {
 
         private readonly IClientRepository _userRepository;
@@ -62,6 +64,24 @@ namespace Client.Domain.EventHandlers
         
             userEntity.Password = @event.NewPassword;
 
+            await _userRepository.UpdateClient(userEntity);
+        }
+
+        public async Task Handle(ClientBlockedEvent @event, CancellationToken cancellation)
+        {
+            var userEntity = await _userRepository.GetClient(@event.Id);
+            
+            userEntity.IsBlocked = true;
+            
+            await _userRepository.UpdateClient(userEntity);
+        }
+
+        public async Task Handle(ClientUnBlockedEvent @event, CancellationToken cancellation)
+        {
+            var userEntity = await _userRepository.GetClient(@event.Id);
+
+            userEntity.IsBlocked = false;
+            
             await _userRepository.UpdateClient(userEntity);
         }
     }
