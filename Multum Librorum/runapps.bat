@@ -16,3 +16,6 @@ start Payment.Endpoint.exe --urls "https://localhost:7268;http://localhost:5038"
 
 cd /d E:\Uni\Multum Librorum\Multum Librorum\src\Employee.Endpoint\bin\Debug\net6.0
 start Employee.Endpoint.exe --urls "https://localhost:7062;http://localhost:5028"
+
+cd /d E:\Uni\Multum Librorum\Multum Librorum\src\Document.Endpoint\bin\Debug\net6.0
+start Document.Endpoint.exe --urls "https://localhost:7005;http://localhost:5048"

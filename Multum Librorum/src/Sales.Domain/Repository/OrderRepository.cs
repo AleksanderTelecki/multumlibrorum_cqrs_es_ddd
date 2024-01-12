@@ -14,6 +14,7 @@ public interface IOrderRepository
     public Task ChangeOrderState(Guid orderId, OrderState newOrderState);
     public Task AddProductsToOrder(Guid orderId, ICollection<OrderItem> orderItems);
     public Task<List<OrderEntity>> GetOrdersByClientId(Guid clientId);
+    public Task<OrderEntity> GetOrdersByOrderId(Guid orderId);
     public Task<List<OrderEntity>> GetOrders();
     public Task UpdateOrder(OrderEntity orderEntity);
 }
@@ -80,6 +81,13 @@ public class OrderRepository: IOrderRepository
         return await _salesDataContext.Orders
             .Include(x => x.Items)
             .Where(x => x.ClientId == clientId).ToListAsync();
+    }
+
+    public async Task<OrderEntity> GetOrdersByOrderId(Guid orderId)
+    {
+        return await _salesDataContext.Orders
+            .Include(x => x.Items)
+            .SingleOrDefaultAsync(x => x.Id == orderId);
     }
 
     public async Task<List<OrderEntity>> GetOrders()

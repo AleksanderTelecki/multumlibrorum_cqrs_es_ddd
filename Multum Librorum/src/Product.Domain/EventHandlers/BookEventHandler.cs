@@ -20,7 +20,8 @@ namespace Product.Domain.EventHandlers
         IEventHandler<BookMarkedAsUnHiddenEvent>,
         IEventHandler<BookCommentAddedEvent>,
         IEventHandler<BookCommentRemovedEvent>,
-        IEventHandler<BookPromotedPriceChangedEvent>
+        IEventHandler<BookPromotedPriceChangedEvent>,
+        IEventHandler<BookQuantityDecreasedEvent>
 
     {
         private readonly IProductRepository _productRepository;
@@ -117,6 +118,15 @@ namespace Product.Domain.EventHandlers
             var bookEntity = await _productRepository.GetBook(@event.Id);
 
             bookEntity.PromotedPrice = @event.PromotedPrice;
+
+            await _productRepository.UpdateBook(bookEntity);
+        }
+
+        public async Task Handle(BookQuantityDecreasedEvent @event, CancellationToken cancellation)
+        {
+            var bookEntity = await _productRepository.GetBook(@event.Id);
+
+            bookEntity.Quantity -= @event.BookDecreasedQuantity;
 
             await _productRepository.UpdateBook(bookEntity);
         }

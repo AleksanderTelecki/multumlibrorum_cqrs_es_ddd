@@ -12,7 +12,8 @@ public class SalesQueryHandler:
     IQueryHandler<GetClientCartQuery, List<CartItemModel>>,
     IQueryHandler<GetClientCartIdQuery, Guid>,
     IQueryHandler<GetClientOrdersModelQuery, List<OrderModel>>,
-    IQueryHandler<GetOrdersQuery, List<OrderModel>>
+    IQueryHandler<GetOrdersQuery, List<OrderModel>>,
+    IQueryHandler<GetOrderDetailsByOrderIdQuery, OrderModel>
 {
     private readonly ICartRepository _cartRepository;
     private readonly IOrderRepository _orderRepository;
@@ -122,5 +123,29 @@ public class SalesQueryHandler:
         }
 
         return orderModels;
+    }
+
+    public async Task<OrderModel> Handle(GetOrderDetailsByOrderIdQuery query, CancellationToken cancellationToken)
+    {
+        var order = await _orderRepository.GetOrdersByOrderId(query.OrderId);
+        var orderModel = new OrderModel() { OrderId = order.Id, ClientId = order.ClientId, State = order.State };
+            
+        foreach (var orderItem in order.Items)
+        {
+            var productInfo =
+                await _restDispatcher.DispatchQuery(new GetBookModelQuery() { ProductId = orderItem.ProductId },
+                    EndpointEnum.ProductEndpoint);
+
+            orderModel.Items.Add(new OrderItemModel()
+            {
+                Id = orderItem.Id,
+                ProductId = productInfo.Id,
+                ProductName = productInfo.Title,
+                ProductPrice = (productInfo.PromotedPrice ?? productInfo.Price) * orderItem.Quantity,
+                Quantity = orderItem.Quantity
+            });
+        }
+
+        return orderModel;
     }
 }
