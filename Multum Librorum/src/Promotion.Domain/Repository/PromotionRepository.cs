@@ -34,7 +34,7 @@ namespace Promotion.Domain.Repository
 
         public async Task<PromotionEntity> GetPromotion(Guid id)
         {
-            return await _promotionDomainDataContext.Promotions.FirstOrDefaultAsync(x => x.Id == id);
+            return await _promotionDomainDataContext.Promotions.Include(x=>x.Products).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task UpdatePromotion(PromotionEntity promotionEntity)

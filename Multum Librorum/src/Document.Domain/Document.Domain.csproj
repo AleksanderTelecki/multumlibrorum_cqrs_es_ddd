@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\CQRS.Communication\CQRS.Communication.csproj" />
     <ProjectReference Include="..\..\CQRS.Core\CQRS.Core.csproj" />
+    <ProjectReference Include="..\Communication.Messages\Communication.Messages.csproj" />
     <ProjectReference Include="..\Sales.Messages\Sales.Messages.csproj" />
   </ItemGroup>
 

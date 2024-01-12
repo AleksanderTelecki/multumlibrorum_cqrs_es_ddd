@@ -9,7 +9,8 @@ using Promotion.Messages.Queries;
 namespace Promotion.Domain.QueryHandlers;
 
 public class PromotionQueryHandler:
-    IQueryHandler<GetPromotionsQuery, List<PromotionModel>>
+    IQueryHandler<GetPromotionsQuery, List<PromotionModel>>,
+    IQueryHandler<GetPromotionQuery, PromotionModel>
 {
     private readonly IPromotionRepository _promotionRepository;
     private readonly IRestDispatcher _restDispatcher;
@@ -53,5 +54,31 @@ public class PromotionQueryHandler:
         }
 
         return promotionModels;
+    }
+
+    public async Task<PromotionModel> Handle(GetPromotionQuery query, CancellationToken cancellationToken)
+    {
+        var promotion = await _promotionRepository.GetPromotion(query.PromotionId);
+        
+        var promotionModel = new PromotionModel()
+        {
+            Id = promotion.Id,
+            Description = promotion.Description,
+            EndDate = promotion.EndDate,
+            IsActive = promotion.IsActive,
+            PromotionInPercentage = promotion.PromotionInPercentage,
+            Regdate = promotion.Regdate
+        };
+        
+        foreach (var productProm in promotion.Products)
+        {
+            var productInfo =
+                await _restDispatcher.DispatchQuery(new GetBookModelQuery() { ProductId = productProm.ProductId },
+                    EndpointEnum.ProductEndpoint);
+                
+            promotionModel.Products.Add(new PromotedProductModel() {Id = productInfo.Id, ProductName = productInfo.Title});
+        }
+
+        return promotionModel;
     }
 }

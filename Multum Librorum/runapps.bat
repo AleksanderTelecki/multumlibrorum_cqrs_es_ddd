@@ -19,3 +19,6 @@ start Employee.Endpoint.exe --urls "https://localhost:7062;http://localhost:5028
 
 cd /d E:\Uni\Multum Librorum\Multum Librorum\src\Document.Endpoint\bin\Debug\net6.0
 start Document.Endpoint.exe --urls "https://localhost:7005;http://localhost:5048"
+
+cd /d E:\Uni\Multum Librorum\Multum Librorum\src\Communication.Endpoint\bin\Debug\net6.0
+start Communication.Endpoint.exe --urls "https://localhost:7030;http://localhost:5166"

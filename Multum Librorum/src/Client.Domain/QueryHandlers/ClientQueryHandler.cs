@@ -52,6 +52,7 @@ namespace Client.Domain.QueryHandlers
             
             return new ClientDetails() { 
                 Id = userEntity.Id,
+                Email = userEntity.Email,
                 Surname = userEntity.Surname,
                 Name = userEntity.Name,
                 Phone = userEntity.Phone,
@@ -77,6 +78,7 @@ namespace Client.Domain.QueryHandlers
                 clientDetailsList.Add(
                     new ClientDetails() { 
                         Id = userEntity.Id,
+                        Email = userEntity.Email,
                         Surname = userEntity.Surname,
                         Name = userEntity.Name,
                         Phone = userEntity.Phone,

@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Communication.Messages.Commands;
 using CQRS.Communication.Abstract;
 using CQRS.Communication.Enums;
 using CQRS.Core.Events.Abstract;
@@ -39,6 +40,11 @@ public class SalesEventHandlers :
         var fileEntity = new FileEntity(@event.Id, path, DateTime.Now);
 
         await _documentRepository.CreateFile(fileEntity);
+
+        await _restDispatcher.DispatchCommand(
+            new SendReceiptEmailCommand()
+                { OrderId = orderDetails.OrderId, ClientId = orderDetails.ClientId, AttachmentFilePath = path },
+            EndpointEnum.CommunicationEndpoint);
     }
     
     private string GenerateReceiptHtml(OrderModel order)
