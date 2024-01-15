@@ -46,7 +46,7 @@ public class CommunicationCommandHandlers:
         <p>Dear Customer,</p>
         <p>Thank you for your recent purchase. We appreciate your business and hope you are satisfied with your purchase.</p>
         <p>Please find attached the receipt for your transaction. The receipt includes a detailed summary of your purchase. We recommend keeping this document for your records.</p>
-        <p>If you have any questions or require further assistance, please do not hesitate to contact us at [Your Contact Information].</p>
+        <p>If you have any questions or require further assistance, please do not hesitate to contact us at MultumLibrorum.</p>
         <p>Thank you again for choosing us. We look forward to serving you in the future.</p>
         <p>Warm regards,</p>
         <p>Multum Librorum</p>
